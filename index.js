@@ -5,6 +5,11 @@ const app = express();
 // database
 require("./Database/connection")
 
+// adding the routes
+const userRoutes = require("./Routes/userRoute");
+app.use("/user", userRoutes);
+
+
 // middlwares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
