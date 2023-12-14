@@ -6,14 +6,6 @@ const userModel = sequelize.define("users", {
     type: DataTypes.INTEGER,
     primaryKey: true,
     allowNull: false,
-    validate: {
-      notNull: {
-        msg: "User ID is required.",
-      },
-      isInt: {
-        msg: "User ID must be an integer.",
-      },
-    },
   },
   firstName: {
     type: DataTypes.STRING,
@@ -57,13 +49,17 @@ const userModel = sequelize.define("users", {
           throw new Error("Email must contain @ symbol.");
         }
 
-        const allowedDomains = ["gmail.com", "yahoo.com", "hotmail.com", "icloud.com", "outlook"];
+        const allowedDomains = [
+          "gmail.com",
+          "yahoo.com",
+          "hotmail.com",
+          "icloud.com",
+          "outlook",
+        ];
         const domain = value.split("@")[1];
 
         if (!allowedDomains.includes(domain)) {
-          throw new Error(
-            "Invalid email domain!"
-          );
+          throw new Error("Invalid email domain!");
         }
       },
     },
@@ -82,7 +78,9 @@ const userModel = sequelize.define("users", {
       containsSpecialCharacter(value) {
         // Custom validation for at least one special character
         if (!/[!@#$%^&*(),.?":{}|<>]/.test(value)) {
-          throw new Error("Password must contain at least one special character.");
+          throw new Error(
+            "Password must contain at least one special character."
+          );
         }
       },
     },
