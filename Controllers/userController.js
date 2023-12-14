@@ -42,16 +42,18 @@ const isValidToken = (tokenObject) => {
   const elapsedMilliseconds = currentTime - createdAt;
   const elapsedMinutes = elapsedMilliseconds / (1000 * 60);
   return elapsedMinutes <= 30;
-//   the token will expire in 30 minutes after the generation
+  //   the token will expire in 30 minutes after the generation
 };
 
 const verifyUserToken = async (req, res) => {
   const { email, rememberToken } = req.body;
   try {
     const user = await userModel.findOne({ where: { email: email } });
+    
     if (!user) {
       return res.status(400).json({ message: "Invalid email entered!" });
     }
+
     if (isValidToken({ createdAt: user.createdAt })) {
       if (user.rememberToken === rememberToken) {
         user.rememberToken = null;
@@ -59,9 +61,8 @@ const verifyUserToken = async (req, res) => {
         user.save();
         return res.status(200).json({ message: "user verified!" });
       }
-    }
-    else {
-        return res.status(403).json({message: "token has expired"})
+    } else {
+      return res.status(403).json({ message: "token has expired" });
     }
     return res.status(403).json({ message: "invalid token!" });
   } catch (error) {
