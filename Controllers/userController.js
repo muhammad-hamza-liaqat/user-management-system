@@ -31,7 +31,20 @@ const createUser = async (req, res) => {
 };
 
 const verifyUserToken = async(req,res)=>{
-    res.end("hello from verify user controller");
+    const { email, rememberToken } = req.body
+    try{
+        const user = await userModel.findOne({ where: {email: email}})
+        if (!user){
+            return res.status(400).json({message: "Invalid email entered!"})
+        }
+        user.rememberToken === rememberToken;
+        user.rememberToken = null;
+        user.isVerified = true;
+        user.save();
+        return res.status(200).json({message: "user verified!"})
+    } catch(error){
+        return res.status(500).json({message: "something went wrong! internal server error"})
+    }
 }
 
 module.exports = { getUser, createUser, verifyUserToken };
