@@ -20,10 +20,9 @@ const createUser = async (req, res) => {
         rememberToken: rememberTokenForUser,
         isAdmin: false,
         isVerified: false,
-
     });
     
-    console.log("user created successfully!");
+    console.log("user Created Successfully!", newUser);
     res.status(200).json({message: "user created!"})
   }
   catch(error){
@@ -31,4 +30,8 @@ const createUser = async (req, res) => {
   }
 };
 
-module.exports = { getUser, createUser };
+const verifyUserToken = async(req,res)=>{
+    res.end("hello from verify user controller");
+}
+
+module.exports = { getUser, createUser, verifyUserToken };
