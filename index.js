@@ -3,7 +3,7 @@ require("dotenv").config()
 const PORT = process.env.PORT;
 const app = express();
 // database
-require("./database/connection")
+require("./Database/connection")
 
 // middlwares
 app.use(express.json());
