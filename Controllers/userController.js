@@ -8,43 +8,46 @@ const getUser = async (req, res) => {
 const createUser = async (req, res) => {
   // res.end("add user post method")
   const { firstName, lastName, email, password } = req.body;
-  try{
+  try {
     await userModel.sync();
     // rememberToekn for the user to verify himself against this token
     const rememberTokenForUser = uuidv4();
     // hashing the password and generate 10 rounds of salt for password decryption
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     const newUser = await userModel.create({
-        ...req.body,
-        password: hashedPassword,
-        rememberToken: rememberTokenForUser,
-        isAdmin: false,
-        isVerified: false,
+      ...req.body,
+      password: hashedPassword,
+      rememberToken: rememberTokenForUser,
+      isAdmin: false,
+      isVerified: false,
     });
-    
+
     console.log("user Created Successfully!", newUser);
-    res.status(200).json({message: "user created!"})
-  }
-  catch(error){
+    res.status(200).json({ message: "user created!" });
+  } catch (error) {
     console.log("error: ", error.message);
   }
 };
 
-const verifyUserToken = async(req,res)=>{
-    const { email, rememberToken } = req.body
-    try{
-        const user = await userModel.findOne({ where: {email: email}})
-        if (!user){
-            return res.status(400).json({message: "Invalid email entered!"})
-        }
-        user.rememberToken === rememberToken;
-        user.rememberToken = null;
-        user.isVerified = true;
-        user.save();
-        return res.status(200).json({message: "user verified!"})
-    } catch(error){
-        return res.status(500).json({message: "something went wrong! internal server error"})
+const verifyUserToken = async (req, res) => {
+  const { email, rememberToken } = req.body;
+  try {
+    const user = await userModel.findOne({ where: { email: email } });
+    if (!user) {
+      return res.status(400).json({ message: "Invalid email entered!" });
     }
-}
+    if (user.rememberToken === rememberToken) {
+      user.rememberToken = null;
+      user.isVerified = true;
+      user.save();
+      return res.status(200).json({ message: "user verified!" });
+    }
+    return res.status(403).json({ message: "invalid token!" });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "something went wrong! internal server error" });
+  }
+};
 
 module.exports = { getUser, createUser, verifyUserToken };
