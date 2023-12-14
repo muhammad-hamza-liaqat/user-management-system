@@ -50,4 +50,28 @@ const verifyUserToken = async (req, res) => {
   }
 };
 
-module.exports = { getUser, createUser, verifyUserToken };
+const userLogin = async (req, res) => {
+  // res.end("hello from user login controller");
+  const { email, password } = req.body;
+  try {
+    const user = await userModel.findOne({
+      where: {
+        email: email,
+      },
+    });
+    if (!user) {
+      return res.status(401).json({ message: "Invalid Email or Password!" });
+    }
+    const validatePassword = await bcrypt.compare(password, user.password);
+    if (!validatePassword) {
+      return res.status(401).json({ message: "Invalid Email or Password" });
+    }
+    return res.status(200).json({ message: "login successfully!" });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "something went wrong! Internal Server Error" });
+  }
+};
+
+module.exports = { getUser, createUser, verifyUserToken, userLogin };
