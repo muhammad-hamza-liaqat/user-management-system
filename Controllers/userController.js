@@ -7,6 +7,7 @@ const createUser = async (req, res) => {
   // res.end("add user post method")
   const { firstName, lastName, email, password } = req.body;
   try{
+    await userModel.sync();
     const newUser = await userModel.create({
         firstName,
         lastName,

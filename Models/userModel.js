@@ -8,6 +8,7 @@ const userModel = sequelize.define(
       type: DataTypes.INTEGER,
       primaryKey: true,
       allowNull: true,
+      autoIncrement: true,
     },
     firstName: {
       type: DataTypes.STRING,
@@ -38,6 +39,7 @@ const userModel = sequelize.define(
     email: {
       type: DataTypes.STRING,
       allowNull: false,
+      unique:true,
       validate: {
         notNull: {
           msg: "Email is required.",
@@ -99,6 +101,7 @@ const userModel = sequelize.define(
     isVerified: {
       type: DataTypes.BOOLEAN,
       allowNull: true,
+      defaultValue: false,
     },
   },
   {
