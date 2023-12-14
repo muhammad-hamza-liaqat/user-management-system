@@ -66,6 +66,7 @@ const userLogin = async (req, res) => {
     if (!validatePassword) {
       return res.status(401).json({ message: "Invalid Email or Password" });
     }
+    console.log("user login successfully!")
     return res.status(200).json({ message: "login successfully!" });
   } catch (error) {
     return res
