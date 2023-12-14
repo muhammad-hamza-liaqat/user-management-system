@@ -34,12 +34,15 @@ const createUser = async (req, res) => {
   }
 };
 
+// validator function to validate the token timestamp
+
 const isValidToken = (tokenObject) => {
   const createdAt = new Date(tokenObject.createdAt);
   const currentTime = new Date();
   const elapsedMilliseconds = currentTime - createdAt;
   const elapsedMinutes = elapsedMilliseconds / (1000 * 60);
-  return elapsedMinutes <= 1;
+  return elapsedMinutes <= 30;
+//   the token will expire in 30 minutes after the generation
 };
 
 const verifyUserToken = async (req, res) => {
