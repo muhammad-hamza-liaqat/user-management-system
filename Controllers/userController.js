@@ -12,8 +12,8 @@ const createUser = async (req, res) => {
     await userModel.sync();
     // rememberToekn for the user to verify himself against this token
     const rememberTokenForUser = uuidv4();
-    // hashing the password and generate 20 rounds of salt for password decryption
-    const hashedPassword = await bcrypt.hash(req.body.password, 20);
+    // hashing the password and generate 10 rounds of salt for password decryption
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
     const newUser = await userModel.create({
         ...req.body,
         password: hashedPassword,

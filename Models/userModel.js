@@ -39,7 +39,7 @@ const userModel = sequelize.define(
     email: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique:true,
+      // unique:true,
       validate: {
         notNull: {
           msg: "Email is required.",
@@ -58,7 +58,7 @@ const userModel = sequelize.define(
             "yahoo.com",
             "hotmail.com",
             "icloud.com",
-            "outlook",
+            "outlook.com",
           ];
           const domain = value.split("@")[1];
 
