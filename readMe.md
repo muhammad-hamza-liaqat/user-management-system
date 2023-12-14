@@ -4,6 +4,6 @@ projectFinal
 <!-- npm modules -->
 1- sequelize
 2- express
-3- bcrypt
-4- uuid 
-5- nodeMailer
+3- bcrypt => hashing the password
+4- uuid => generating the remember token for verification
+5- nodeMailer => sending the email
