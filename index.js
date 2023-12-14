@@ -16,8 +16,15 @@ app.use(express.urlencoded({ extended: true }));
 
 // adding the routes
 const userRoutes = require("./Routes/userRoute");
-
 app.use("/user", userRoutes);
+// middleware for 404 error page
+app.use(function(req,res,next){
+    res.status(404).render('404')
+  });
+
+// views setup
+app.set("view engine", "ejs");
+app.set("views", "./Views");
 
 
 // server
