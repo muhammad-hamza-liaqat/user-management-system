@@ -24,16 +24,26 @@ const createUser = async (req, res) => {
       createdAt: new Date(),
     };
 
-    const newUser = await userModel.create({
-      firstName,
-      lastName,
-      email,
-      rememberToken: rememberTokenForUser.token,
-      isAdmin: false,
-      isVerified: false,
-    },   {
-      fields: ["firstName", "lastName","email", "rememberToken", "isAdmin", "isVerified"],
-    });
+    const newUser = await userModel.create(
+      {
+        firstName,
+        lastName,
+        email,
+        rememberToken: rememberTokenForUser.token,
+        isAdmin: false,
+        isVerified: false,
+      },
+      {
+        fields: [
+          "firstName",
+          "lastName",
+          "email",
+          "rememberToken",
+          "isAdmin",
+          "isVerified",
+        ],
+      }
+    );
 
     const htmlContent = `
     <html>
@@ -67,16 +77,15 @@ const createUser = async (req, res) => {
       .json({ message: "user created! Verify email to verify account" });
     console.log("user Created Successfully!", newUser);
   } catch (error) {
-    if (error.name === 'SequelizeValidationError') {
-      
-      const validationErrors = error.errors.map(err => ({
+    if (error.name === "SequelizeValidationError") {
+      const validationErrors = error.errors.map((err) => ({
         field: err.path,
         message: err.message,
       }));
       return res.status(400).json({ errors: validationErrors });
     } else {
       console.error(error);
-      return res.status(500).json({ error: 'Internal Server Error' });
+      return res.status(500).json({ error: "Internal Server Error" });
     }
   }
 };
@@ -170,15 +179,17 @@ const createPassword = async (req, res) => {
         message: "User is not Verified! Please verify your account first.",
       });
     }
-    
+
     console.log(password);
     if (password === null || password === "") {
       console.log("Password is null or empty. No need to update.");
-      return res.status(400).json({ message: "Password cannot be null or empty." });
+      return res
+        .status(400)
+        .json({ message: "Password cannot be null or empty." });
     } else {
       const hashedPassword = await bcrypt.hash(password, 15);
       await user.update({ password: hashedPassword });
-      console.log(hashedPassword)
+      console.log(hashedPassword);
       return res.status(201).json({ message: "password created!" });
     }
   } catch (error) {
@@ -189,6 +200,16 @@ const createPassword = async (req, res) => {
   }
 };
 
+const forgotPasswordPage = (req,res)=>{
+  res.end("forgotPasswordPage render()")
+};
+
+const forgotPassword = async (req,res) =>{
+
+
+}
+
+
 
 module.exports = {
   getUser,
@@ -198,4 +219,7 @@ module.exports = {
   createPassword,
   loginPage,
   createPasswordPage,
+  forgotPasswordPage,
+  forgotPassword
+
 };
