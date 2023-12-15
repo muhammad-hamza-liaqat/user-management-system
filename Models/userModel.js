@@ -72,20 +72,20 @@ const userModel = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true,
       defaultValue: null,
-      validate: {
-        len: {
-          args: [6, 255],
-          msg: "Password must be between 6 and 255 characters.",
-        },
-        containsSpecialCharacter(value) {
-          // Custom validation for at least one special character
-          if (!/[!@#$%^&*(),.?":{}|<>]/.test(value)) {
-            throw new Error(
-              "Password must contain at least one special character."
-            );
-          }
-        },
-      },
+      // validate: {
+      //   len: {
+      //     args: [6, 255],
+      //     msg: "Password must be between 6 and 255 characters.",
+      //   },
+      //   containsSpecialCharacter(value) {
+      //     // Custom validation for at least one special character
+      //     if (!/[!@#$%^&*(),.?":{}|<>]/.test(value)) {
+      //       throw new Error(
+      //         "Password must contain at least one special character."
+      //       );
+      //     }
+      //   },
+      // },
     },
     rememberToken: {
       type: DataTypes.STRING,

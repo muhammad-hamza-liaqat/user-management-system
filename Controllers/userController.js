@@ -8,6 +8,7 @@ const {
   sendVerificationEmail,
   emailQueue,
 } = require("../Services/nodeMailer.js");
+const { where } = require("sequelize");
 
 const getUser = async (req, res) => {
   res.status(200).json({ message: "hello from add-user Controller" });
@@ -200,16 +201,29 @@ const createPassword = async (req, res) => {
   }
 };
 
-const forgotPasswordPage = (req,res)=>{
-  res.end("forgotPasswordPage render()")
+const forgotPasswordPage = (req, res) => {
+  res.end("forgotPasswordPage render()");
 };
 
-const forgotPassword = async (req,res) =>{
+const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  try {
+    const user = await userModel.findOne({ where: { email: email } });
+    if (!user) {
+      return res.status(400).json({ message: "record not found!" });
+    }
+    
+    if (user.password===null || user.password==""){
+      return res.status(400).json({message: "check your mail to set the password again- request hitted before"})
+    }
+    await user.update({ password: null });
+    return res.status(201).json({message: "Mail sent to your email address. follow the instructions"})
 
-
-}
-
-
+  } catch (error) {
+    console.log("error:", error);
+    return res.status(500).json({ message: "internal server error" });
+  }
+};
 
 module.exports = {
   getUser,
@@ -220,6 +234,5 @@ module.exports = {
   loginPage,
   createPasswordPage,
   forgotPasswordPage,
-  forgotPassword
-
+  forgotPassword,
 };

@@ -6,7 +6,7 @@ const userRoutes = express.Router();
 
 userRoutes.route("/add-user").get(getUser).post(createUser);
 userRoutes.route("/verify-user/:email/:rememberToken").get(verifyUserToken);
-userRoutes.route("/login-user").get(loginPage).post(isthisUser,userLogin);
+userRoutes.route("/login-user").get(loginPage).post(isthisUser,userLogin); // middleware added to login only user accounts
 userRoutes.route("/create-password").get(createPasswordPage).post(createPassword);
 userRoutes.route("/forgot-password").get(forgotPasswordPage).post(forgotPassword);
 
