@@ -6,10 +6,12 @@ const app = express();
 // database
 require("./Database/connection")
 const bodyParser = require("body-parser");
+const cors = require("cors")
 
 
 
 // middlwares
+app.use(cors())
 app.use(bodyParser.json());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

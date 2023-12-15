@@ -56,7 +56,7 @@ const createUser = async (req, res) => {
         <div style="background-color: #f2f2f2; padding: 20px; border-radius: 10px;">
           <h2 style="color: #333;">Email Verification</h2>
           <p>Thank you for signing up! To complete your registration, please click the button below to verify your email address:</p>
-          <a href="http://localhost:3000/user/verify-user/${email}/${rememberTokenForUser.token}" target="_blank" style="text-decoration: none;">
+          <a href="http://localhost:8080/user/verify-user/${email}/${rememberTokenForUser.token}" target="_blank" style="text-decoration: none;">
             <button style="background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
               Verify Email & create password
             </button>
@@ -122,7 +122,7 @@ const verifyUserToken = async (req, res) => {
         user.rememberToken = null;
         user.isVerified = true;
         user.save();
-        return res.redirect("http://localhost:3000/user/create-password");
+        return res.redirect("http://localhost:8080/user/create-password");
       }
     } else {
       return res.status(403).json({ message: "token has expired" });
@@ -228,7 +228,7 @@ const forgotPassword = async (req, res) => {
         <div style="background-color: #f2f2f2; padding: 20px; border-radius: 10px;">
           <h2 style="color: #333;">Email Verification</h2>
           <p>To Reset the Password, click on the link below:</p>
-          <a href="http://localhost:3000/user/set-password/${email}" target="_blank" style="text-decoration: none;">
+          <a href="http://localhost:8080/user/set-password/${email}" target="_blank" style="text-decoration: none;">
             <button style="background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
               Reset Password
             </button>
