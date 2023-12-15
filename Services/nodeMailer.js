@@ -18,12 +18,13 @@ const transporter = nodemailer.createTransport({
 });
 
 emailQueue.process(async (job) => {
-  const { to, subject, text } = job.data;
+  const { to, subject, text,html } = job.data;
   const mainOptions = {
     from: "mh408800@gmail.com",
     to,
     subject,
     text,
+    html,
   };
 
   try {

@@ -7,7 +7,7 @@ const {
   transporter,
   sendVerificationEmail,
   emailQueue,
-} = require("../Services/nodeMailer");
+} = require("../Services/nodeMailer.js");
 
 const getUser = async (req, res) => {
   res.status(200).json({ message: "hello from add-user Controller" });
@@ -30,29 +30,34 @@ const createUser = async (req, res) => {
       isAdmin: false,
       isVerified: false,
     });
-    const verificationLink = `http://localhost:3000/user/verify-user:${rememberTokenForUser.token}`;
 
     const htmlContent = `
     <html>
       <head>
         <title>Email Verification</title>
       </head>
-      <body>
-        <p>Click the following button to verify your email:</p>
-        <a href="localhost:3000/user/verify-user" target="_blank">
-          <button style="padding: 10px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">
-            Verify Email
-          </button>
-        </a>
+      <body style="font-family: Arial, sans-serif;">
+  
+        <div style="background-color: #f2f2f2; padding: 20px; border-radius: 10px;">
+          <h2 style="color: #333;">Email Verification</h2>
+          <p>Thank you for signing up! To complete your registration, please click the button below to verify your email address:</p>
+          <a href="http://localhost:3000/users/verify-user/${email}/${rememberTokenForUser.token}" target="_blank" style="text-decoration: none;">
+            <button style="background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+              Verify Email
+            </button>
+          </>
+        </div>
       </body>
     </html>
   `;
 
     await emailQueue.add({
       to: newUser.email,
-      subject: "Email Verification",
-      text: `Click the following link to verify your email: ${'localhost:3000/user/verify-user'}`,
+      subject: "Account Verification Email",
+      text: "So delighted that you have sign-up to our website. Please cooperate with us for the sign in process",
       html: htmlContent,
+      
+
     });
 
     res
@@ -76,7 +81,9 @@ const isValidToken = (tokenObject) => {
 };
 
 const verifyUserToken = async (req, res) => {
-  const { email, rememberToken } = req.body;
+  console.log(req.params);
+  const email = req.params.email
+  const rememberToken = req.params.rememberToken
   try {
     const user = await userModel.findOne({ where: { email: email } });
 
@@ -129,4 +136,9 @@ const userLogin = async (req, res) => {
   }
 };
 
-module.exports = { getUser, createUser, verifyUserToken, userLogin };
+const setPassword = async(req,res) =>{
+  const {email, password} = req.body
+}
+
+
+module.exports = { getUser, createUser, verifyUserToken, userLogin, setPassword };
