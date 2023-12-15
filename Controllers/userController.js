@@ -251,6 +251,27 @@ const forgotPassword = async (req, res) => {
   }
 };
 
+const setPasswordPage =(req,res)=>{
+  res.end("setPasswordPage render()")
+};
+
+const setPassword = async(req,res)=>{
+  try{
+    const {password} =req.body;
+    const email = req.params.email;
+    const user = await userModel.findOne({where:{ email: email}});
+    if (!user){
+      return res.status(400).json({message: "user don't exist"})
+    }
+    const hashedPassword =  await bcrypt.hash(password, 10);
+    await user.update({ password: hashedPassword });
+    return res.status(201).json({message: "user has successfully set the password"})
+  } catch(error){
+    console.log("error:",error);
+    return res.status(500).json({message: "internal server error"})
+  }
+};
+
 module.exports = {
   getUser,
   createUser,
@@ -261,4 +282,6 @@ module.exports = {
   createPasswordPage,
   forgotPasswordPage,
   forgotPassword,
+  setPasswordPage,
+  setPassword
 };
