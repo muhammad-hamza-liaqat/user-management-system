@@ -149,6 +149,9 @@ const createPassword = async(req,res) =>{
     if (!user){
       return res.status(500).json({message: "user not found!"})
     }
+    if (user.isVerified === false){
+      return res.status(406).json({message:"User is not Verified! Please verify your account first."});
+    }
     console.log(password);
     if (password === null || password === ""){
       return res.status(400).json({message: "password cannot be null"})
