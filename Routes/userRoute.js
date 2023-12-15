@@ -7,6 +7,6 @@ const userRoutes = express.Router();
 userRoutes.route("/add-user").get(getUser).post(createUser);
 userRoutes.route("/verify-user/:email/:rememberToken").get(verifyUserToken);
 userRoutes.route("/login-user").post(isthisUser,userLogin);
-userRoutes.route("/set-password/:email").post(createPassword);
+userRoutes.route("/create-password").post(createPassword);
 
 module.exports = userRoutes;

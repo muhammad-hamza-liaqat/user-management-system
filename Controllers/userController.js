@@ -142,25 +142,35 @@ const userLogin = async (req, res) => {
 };
 
 const createPassword = async(req,res) =>{
-  const email = req.params.email;
-  const {password} = req.body;
+  // destructure
+  const {email,password} = req.body;
+  // const email = req.query;
+  // const password = req.body;
+  
   try{
-    const user = await userModel.findOne({where:{email : email}})
+    console.log("email:",email )
+    const user = await userModel.findOne({where:{ email : email }})
+    // console.log(user)
     if (!user){
-      return res.status(500).json({message: "user not found!"})
+      console.log("this user doesnot exists in the records")
+      res.status(500).json({message: "user not found!"})
     }
     if (user.isVerified === false){
+      console.log("the user is not verified. please verify your account first")
       return res.status(406).json({message:"User is not Verified! Please verify your account first."});
     }
-    console.log(password);
+    // console.log(password);
     if (password === null || password === ""){
-      return res.status(400).json({message: "password cannot be null"})
+      res.status(400).json({message: "password cannot be null"})
     }
     const hashedPassword = await bcrypt.hash(password,15);
     await user.update({password:hashedPassword})
+    res.status(201).json({message: "password created!"})
 
   } catch(error){
-    return res.status(500).json({message: "Something went Wrong! Internal Server Error"})
+    console.log(error)
+    res.status(500).json({message: "Something went Wrong! Internal Server Error- createPassword"});
+    
   }
 }
 
