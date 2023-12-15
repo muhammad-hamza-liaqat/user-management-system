@@ -12,6 +12,7 @@ projectFinal
 8- node-schedule => scheduler
 9- express-rate-limit => limit the hit of Apis in the project
 10- socket.io => for real time messaging as a chatbot
+11- openai => for receiving the prompt and generating the responses.
 
 
 http://192.168.11.179:8080/user/verify-user
