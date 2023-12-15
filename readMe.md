@@ -10,7 +10,8 @@ projectFinal
 6- cors
 7- bull => background jobs
 8- node-schedule => scheduler
-9- express-rate-limit
+9- express-rate-limit => limit the hit of Apis in the project
+10- socket.io => for real time messaging as a chatbot
 
 
 http://192.168.11.179:8080/user/verify-user
