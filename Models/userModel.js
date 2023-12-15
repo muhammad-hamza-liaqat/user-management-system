@@ -107,6 +107,13 @@ const userModel = sequelize.define(
     timestamp: true,
   }
 );
+sequelize.sync()
+    .then(() => {
+        console.log('Job model synchronized with the database.');
+    })
+    .catch((error) => {
+        console.error('Error synchronizing Job model:', error);
+    });
 
 module.exports = userModel;
 
