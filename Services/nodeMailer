@@ -30,9 +30,6 @@ emailQueue.process(async (job) => {
     // Process the job (send email)
     await transporter.sendMail(mainOptions);
     console.log(`Email sent to ${to}`);
-
-    // No need to save or delete job information from the database
-
     // Close the transport connection after processing
     transporter.close();
   } catch (error) {
