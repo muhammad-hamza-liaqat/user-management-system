@@ -33,23 +33,26 @@ const createUser = async (req, res) => {
     const verificationLink = `http://localhost:3000/user/verify-user:${rememberTokenForUser.token}`;
 
     const htmlContent = `
-  <html>
-    <head>
-      <title>Test Email with Button</title>
-    </head>
-    <body>
-      <p>This is a test email with a button:</p>
-      <a href="http://localhost:${process.env.PORT}/users/track-click/${email}/${verificationLink}" target="_blank">
-        <button>Click me!</button>
-      </a>
-    </body>
-  </html>
-`;
+    <html>
+      <head>
+        <title>Email Verification</title>
+      </head>
+      <body>
+        <p>Click the following button to verify your email:</p>
+        <a href="localhost:3000/user/verify-user" target="_blank">
+          <button style="padding: 10px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">
+            Verify Email
+          </button>
+        </a>
+      </body>
+    </html>
+  `;
 
     await emailQueue.add({
       to: newUser.email,
       subject: "Email Verification",
-      text: `Click the following link to verify your email: /verify/${verificationLink}`,
+      text: `Click the following link to verify your email: ${'localhost:3000/user/verify-user'}`,
+      html: htmlContent,
     });
 
     res
