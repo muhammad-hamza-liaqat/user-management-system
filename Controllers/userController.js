@@ -217,7 +217,33 @@ const forgotPassword = async (req, res) => {
       return res.status(400).json({message: "check your mail to set the password again- request hitted before"})
     }
     await user.update({ password: null });
-    return res.status(201).json({message: "Mail sent to your email address. follow the instructions"})
+    console.log("Mail sent to your email address. follow the instructions")
+    const resetContent = `
+    <html>
+      <head>
+        <title>Reset Password</title>
+      </head>
+      <body style="font-family: Arial, sans-serif;">
+  
+        <div style="background-color: #f2f2f2; padding: 20px; border-radius: 10px;">
+          <h2 style="color: #333;">Email Verification</h2>
+          <p>To Reset the Password, click on the link below:</p>
+          <a href="http://localhost:3000/user/set-password/${email}" target="_blank" style="text-decoration: none;">
+            <button style="background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+              Reset Password
+            </button>
+          </>
+        </div>
+      </body>
+    </html>
+  `;
+    await emailQueue.add({
+      to: user.email,
+      subject: "Password Reset Email",
+      text: "Hello App Family, you have generated the request for the reset email password",
+      html: resetContent,
+    });
+    return res.status(201).json({message: "email sent check the email"})
 
   } catch (error) {
     console.log("error:", error);
