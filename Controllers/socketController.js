@@ -1,8 +1,11 @@
 // socketController.js
-const io = require('socket.io')();
-const { queryChatGPT } = require('../Services/queryChatGPT');
+const io = require("socket.io")();
+const { queryChatGPT } = require("../Services/queryChatGPT");
 
-// Arrow function for handling chat events
+const sendMessagePage = (req, res) => {
+  res.end("sendMessagePage render()");
+};
+
 const sendMessage = async (req, res) => {
   const prompt = req.body.message;
 
@@ -11,15 +14,15 @@ const sendMessage = async (req, res) => {
     const generatedResponse = await queryChatGPT(prompt);
 
     // Emit the generated response to all connected clients
-    io.emit('chat message', generatedResponse);
-    res.status(200).send('Message received');
+    io.emit("chat message", generatedResponse);
+    res.status(200).send("Message received");
   } catch (error) {
-    console.error('Error generating response:', error);
-    res.status(500).send('Internal Server Error');
+    console.error("Error generating response:", error);
+    res.status(500).send("Internal Server Error");
   }
 };
 
 module.exports = {
   sendMessage,
-  // Add other socket-related functions as needed
+  sendMessagePage,
 };
