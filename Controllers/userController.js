@@ -1,6 +1,13 @@
 const userModel = require("../Models/userModel");
 const bcrypt = require("bcrypt");
 const { v4: uuidv4 } = require("uuid");
+const nodemailer = require("nodemailer");
+const schedule = require("node-schedule");
+const {
+  transporter,
+  sendVerificationEmail,
+  emailQueue,
+} = require("../Services/nodeMailer");
 
 const getUser = async (req, res) => {
   res.status(200).json({ message: "hello from add-user Controller" });
@@ -8,7 +15,7 @@ const getUser = async (req, res) => {
 
 const createUser = async (req, res) => {
   // res.end("add user post method")
-  const { firstName, lastName, email, password } = req.body;
+  const { firstName, lastName, email } = req.body;
   try {
     await userModel.sync();
     // rememberToekn for the user to verify himself against this token
@@ -16,19 +23,20 @@ const createUser = async (req, res) => {
       token: uuidv4(),
       createdAt: new Date(),
     };
-    // hashing the password and generate 10 rounds of salt for password decryption
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
     const newUser = await userModel.create({
       ...req.body,
-      password: hashedPassword,
       rememberToken: rememberTokenForUser.token,
       isAdmin: false,
       isVerified: false,
     });
-
+    await emailQueue.add({
+      to: newUser.email,
+      subject: "Email Verification",
+      text: `Click the following link to verify your email: http://localhost:3000/verify/${rememberTokenForUser.token}`,
+    });
+    res.status(201).json({message: "user created! Verify email to verify account"})
     console.log("user Created Successfully!", newUser);
-    res.status(200).json({ message: "user created!" });
   } catch (error) {
     console.log("error: ", error.message);
   }
@@ -49,7 +57,7 @@ const verifyUserToken = async (req, res) => {
   const { email, rememberToken } = req.body;
   try {
     const user = await userModel.findOne({ where: { email: email } });
-    
+
     if (!user) {
       return res.status(400).json({ message: "Invalid email entered!" });
     }
