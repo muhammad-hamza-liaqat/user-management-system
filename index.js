@@ -3,11 +3,10 @@ require("dotenv").config()
 const PORT = process.env.PORT;
 const http = require('http');
 const socketIO = require('socket.io');
-
 const app = express();
 const server = http.createServer(app);
 const io = socketIO(server);
-
+const standardizeResponse = require("./Middleware/responseFormat");
 // database
 require("./Database/connection")
 const bodyParser = require("body-parser");
@@ -31,6 +30,12 @@ app.use(bodyParser.json());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(limiter);
+app.use(standardizeResponse);
+// middleware for error handling
+// app.use((err, req, res, next) => {
+//   console.error(err.stack);
+//   res.apiError('Internal Server Error', 500);
+// });
 
 
 // Socket.io connection handling
@@ -52,6 +57,8 @@ io.on('connection', (socket) => {
 const userRoutes = require("./Routes/userRoute");
 const jobRoutes = require("./Routes/jobRoute");
 const socketRoutes = require("./Routes/socketRoute");
+
+
 app.use("/user", userRoutes);
 app.use("/job",jobRoutes);
 app.use("/chat", socketRoutes);

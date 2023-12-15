@@ -9,9 +9,16 @@ const {
   emailQueue,
 } = require("../Services/nodeMailer.js");
 const { where } = require("sequelize");
+const standardizeResponse = require("../Middleware/responseFormat")
+
+
+
+
 
 const getUser = async (req, res) => {
-  res.status(200).json({ message: "hello from add-user Controller" });
+  // res.status(200).json({ message: "hello from add-user Controller" });
+  res.apiSuccess(200,"hello from add-user controller")
+
 };
 
 const createUser = async (req, res) => {
