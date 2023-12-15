@@ -41,9 +41,14 @@ const createUser = async (req, res) => {
         <div style="background-color: #f2f2f2; padding: 20px; border-radius: 10px;">
           <h2 style="color: #333;">Email Verification</h2>
           <p>Thank you for signing up! To complete your registration, please click the button below to verify your email address:</p>
-          <a href="http://localhost:3000/users/verify-user/${email}/${rememberTokenForUser.token}" target="_blank" style="text-decoration: none;">
+          <a href="http://localhost:3000/user/verify-user/${email}/${rememberTokenForUser.token}" target="_blank" style="text-decoration: none;">
             <button style="background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
               Verify Email
+            </button>
+
+            <a href="http://localhost:3000/user/set-password/${email}" target="_blank" style="text-decoration: none;">
+            <button style="background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+              Set Password
             </button>
           </>
         </div>
@@ -136,9 +141,25 @@ const userLogin = async (req, res) => {
   }
 };
 
-const setPassword = async(req,res) =>{
-  const {email, password} = req.body
+const createPassword = async(req,res) =>{
+  const email = req.params.email;
+  const {password} = req.body;
+  try{
+    const user = await userModel.findOne({where:{email : email}})
+    if (!user){
+      return res.status(500).json({message: "user not found!"})
+    }
+    console.log(password);
+    if (password === null || password === ""){
+      return res.status(400).json({message: "password cannot be null"})
+    }
+    const hashedPassword = await bcrypt.hash(password,15);
+    await user.update({password:hashedPassword})
+
+  } catch(error){
+    return res.status(500).json({message: "Something went Wrong! Internal Server Error"})
+  }
 }
 
 
-module.exports = { getUser, createUser, verifyUserToken, userLogin, setPassword };
+module.exports = { getUser, createUser, verifyUserToken, userLogin, createPassword };
