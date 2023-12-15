@@ -25,10 +25,14 @@ const createUser = async (req, res) => {
     };
 
     const newUser = await userModel.create({
-      ...req.body,
+      firstName,
+      lastName,
+      email,
       rememberToken: rememberTokenForUser.token,
       isAdmin: false,
       isVerified: false,
+    },   {
+      fields: ["firstName", "lastName","email", "rememberToken", "isAdmin", "isVerified"],
     });
 
     const htmlContent = `
@@ -63,7 +67,17 @@ const createUser = async (req, res) => {
       .json({ message: "user created! Verify email to verify account" });
     console.log("user Created Successfully!", newUser);
   } catch (error) {
-    console.log("error: ", error.message);
+    if (error.name === 'SequelizeValidationError') {
+      
+      const validationErrors = error.errors.map(err => ({
+        field: err.path,
+        message: err.message,
+      }));
+      return res.status(400).json({ errors: validationErrors });
+    } else {
+      console.error(error);
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
   }
 };
 
