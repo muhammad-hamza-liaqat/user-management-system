@@ -6,7 +6,14 @@ const app = express();
 // database
 require("./Database/connection")
 const bodyParser = require("body-parser");
-const cors = require("cors")
+const rateLimit = require("express-rate-limit");
+const cors = require("cors");
+const limiter = rateLimit({
+  windowMs: 60 * 1000, // one minute
+  max: 10, // max 10 requests
+  message:
+    "you have requested too many request(s), Please try again later.(RES-429)",
+});
 
 
 
@@ -15,6 +22,7 @@ app.use(cors())
 app.use(bodyParser.json());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(limiter);
 
 // adding the routes
 const userRoutes = require("./Routes/userRoute");
