@@ -43,12 +43,7 @@ const createUser = async (req, res) => {
           <p>Thank you for signing up! To complete your registration, please click the button below to verify your email address:</p>
           <a href="http://localhost:3000/user/verify-user/${email}/${rememberTokenForUser.token}" target="_blank" style="text-decoration: none;">
             <button style="background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
-              Verify Email
-            </button>
-
-            <a href="http://localhost:3000/user/set-password/${email}" target="_blank" style="text-decoration: none;">
-            <button style="background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
-              Set Password
+              Verify Email & create password
             </button>
           </>
         </div>
@@ -61,8 +56,6 @@ const createUser = async (req, res) => {
       subject: "Account Verification Email",
       text: "So delighted that you have sign-up to our website. Please cooperate with us for the sign in process",
       html: htmlContent,
-      
-
     });
 
     res
@@ -85,10 +78,14 @@ const isValidToken = (tokenObject) => {
   //   the token will expire in 30 minutes after the generation
 };
 
+const createPasswordPage = (req, res) => {
+  res.end("create password page");
+};
+
 const verifyUserToken = async (req, res) => {
   console.log(req.params);
-  const email = req.params.email
-  const rememberToken = req.params.rememberToken
+  const email = req.params.email;
+  const rememberToken = req.params.rememberToken;
   try {
     const user = await userModel.findOne({ where: { email: email } });
 
@@ -101,7 +98,7 @@ const verifyUserToken = async (req, res) => {
         user.rememberToken = null;
         user.isVerified = true;
         user.save();
-        return res.status(200).json({ message: "user verified!" });
+        return res.redirect("http://localhost:3000/user/create-password");
       }
     } else {
       return res.status(403).json({ message: "token has expired" });
@@ -112,6 +109,9 @@ const verifyUserToken = async (req, res) => {
       .status(500)
       .json({ message: "something went wrong! internal server error" });
   }
+};
+const loginPage = (req, res) => {
+  res.end("loginPage");
 };
 
 const userLogin = async (req, res) => {
@@ -141,38 +141,47 @@ const userLogin = async (req, res) => {
   }
 };
 
-const createPassword = async(req,res) =>{
-  // destructure
-  const {email,password} = req.body;
-  // const email = req.query;
-  // const password = req.body;
-  
-  try{
-    console.log("email:",email )
-    const user = await userModel.findOne({where:{ email : email }})
-    // console.log(user)
-    if (!user){
-      console.log("this user doesnot exists in the records")
-      res.status(500).json({message: "user not found!"})
-    }
-    if (user.isVerified === false){
-      console.log("the user is not verified. please verify your account first")
-      return res.status(406).json({message:"User is not Verified! Please verify your account first."});
-    }
-    // console.log(password);
-    if (password === null || password === ""){
-      res.status(400).json({message: "password cannot be null"})
-    }
-    const hashedPassword = await bcrypt.hash(password,15);
-    await user.update({password:hashedPassword})
-    res.status(201).json({message: "password created!"})
+const createPassword = async (req, res) => {
+  const { email, password } = req.body;
 
-  } catch(error){
-    console.log(error)
-    res.status(500).json({message: "Something went Wrong! Internal Server Error- createPassword"});
+  try {
+    const user = await userModel.findOne({ where: { email: email } });
+    if (!user) {
+      console.log("this user does not exist in the records");
+      return res.status(500).json({ message: "user not found!" });
+    }
+    if (user.isVerified === false) {
+      console.log("the user is not verified. please verify your account first");
+      return res.status(406).json({
+        message: "User is not Verified! Please verify your account first.",
+      });
+    }
     
+    console.log(password);
+    if (password === null || password === "") {
+      console.log("Password is null or empty. No need to update.");
+      return res.status(400).json({ message: "Password cannot be null or empty." });
+    } else {
+      const hashedPassword = await bcrypt.hash(password, 15);
+      await user.update({ password: hashedPassword });
+      console.log(hashedPassword)
+      return res.status(201).json({ message: "password created!" });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Something went Wrong! Internal Server Error- createPassword",
+    });
   }
-}
+};
 
 
-module.exports = { getUser, createUser, verifyUserToken, userLogin, createPassword };
+module.exports = {
+  getUser,
+  createUser,
+  verifyUserToken,
+  userLogin,
+  createPassword,
+  loginPage,
+  createPasswordPage,
+};
