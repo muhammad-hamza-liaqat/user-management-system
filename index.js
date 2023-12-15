@@ -31,11 +31,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(limiter);
 app.use(standardizeResponse);
-// middleware for error handling
-// app.use((err, req, res, next) => {
-//   console.error(err.stack);
-//   res.apiError('Internal Server Error', 500);
-// });
 
 
 // Socket.io connection handling
