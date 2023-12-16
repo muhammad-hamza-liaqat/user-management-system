@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-const apiKey = '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';
+const apiKey = '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';
 const apiUrl = 'https://api.openai.com/v1/engines/davinci/completions';
 
 async function queryChatGPT(prompt, retries = 3, delay = 1000) {
