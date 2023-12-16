@@ -1,4 +1,4 @@
-const UserModel=require("./Models/users");
+const UserModel=require("../Models/userModel");
 const bcrypt=require("bcrypt");
 function hashPassword(password) {
     return bcrypt.hashSync(password, 6);

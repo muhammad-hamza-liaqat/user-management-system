@@ -25,11 +25,12 @@ async function queryChatGPT(prompt, retries = 3, delay = 1000) {
         return null;
       }
     } catch (error) {
+      // If the request was made and received a response but contains an error
       if (error.response && error.response.status === 429) {
         const statusCode = error.response.status;
         console.log(`Rate limited (Status Code: ${statusCode}). Retrying in ${delay / 1000} seconds...`);
         await new Promise(resolve => setTimeout(resolve, delay));
-        delay *= 2; // Increase the delay for each retry
+        delay *= 2; 
       } else {
         const statusCode = error.response ? error.response.status : 'unknown';
         console.error(`Error: ${statusCode} - ${error.message}`);
