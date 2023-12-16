@@ -15,10 +15,19 @@ const sendMessage = async (req, res) => {
 
     // Emit the generated response to all connected clients
     io.emit("chat message", generatedResponse);
-    res.status(200).send("Message received");
+
+    // Send a structured JSON response
+    res.status(200).json({
+      prompt: prompt,
+      answer: generatedResponse
+    });
   } catch (error) {
     console.error("Error generating response:", error);
-    res.status(500).send("Internal Server Error");
+
+    // Send an error response
+    res.status(500).json({
+      error: "Internal Server Error"
+    });
   }
 };
 

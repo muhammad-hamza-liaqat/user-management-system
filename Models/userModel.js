@@ -109,10 +109,10 @@ const userModel = sequelize.define(
 );
 sequelize.sync()
     .then(() => {
-        console.log('Job model synchronized with the database.');
+        console.log('userModel synchronized with the database(finalProject).');
     })
     .catch((error) => {
-        console.error('Error synchronizing Job model:', error);
+        console.error('Error synchronizing userModel', error);
     });
 
 module.exports = userModel;
