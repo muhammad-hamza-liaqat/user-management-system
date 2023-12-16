@@ -15,7 +15,8 @@ const cors = require("cors");
 
 // express-rate-limit
 const limiter = rateLimit({
-  windowMs: 60 * 1000, // one minute
+  // windowMs: 60 * 60 * 1000, // one hour
+  windowMs: 1* 60 * 1000, // one minute
   max: 10, // max 10 requests
   // can hit 10 apis in one minute.
   message:
