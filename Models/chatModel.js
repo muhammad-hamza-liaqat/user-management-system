@@ -1,9 +1,20 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../Database/connection");
 
-const Chat = sequelize.define("jobs", {
+const Chat = sequelize.define("chats", {
   email: {
     type: DataTypes.STRING,
+    allowNull: true,
+  },
+  question: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  answers: {
+    type: DataTypes.STRING,
+  },
+  error: {
+    type: DataTypes.TEXT,
   },
 });
 
