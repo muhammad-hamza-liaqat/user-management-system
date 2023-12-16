@@ -160,7 +160,7 @@ const userLogin = async (req, res) => {
       return res.status(401).json({ message: "Invalid Email or Password" });
     }
     // adding the jwt token for the verification
-    const token = jwt.sign({userId: userModel.userId, username: userModel.firstName, email:userModel.email}, process.env.Secret_KEY, { expiresIn: "1d"})
+    const token = jwt.sign({userId: userModel.userId, username: userModel.firstName, email:userModel.email, isAdmin: userModel.isAdmin}, process.env.Secret_KEY, { expiresIn: "1d"})
 
     console.log("token:",token);
     return res.status(200).json({token});
@@ -278,6 +278,36 @@ const setPassword = async(req,res)=>{
   }
 };
 
+
+const adminLogin = async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const user = await userModel.findOne({
+      where: {
+        email: email,
+      },
+    });
+    // user doesnot exists
+    if (!user) {
+      return res.status(401).json({ message: "Invalid Email or Password!" });
+    }
+    const validatePassword = await bcrypt.compare(password, user.password);
+    // incorrect password
+    if (!validatePassword) {
+      return res.status(401).json({ message: "Invalid Email or Password" });
+    }
+    // adding the jwt token for the verification
+    const token = jwt.sign({userId: userModel.userId, username: userModel.firstName, email:userModel.email, isAdmin: userModel.isAdmin}, process.env.Secret_KEY, { expiresIn: "1d"})
+
+    console.log("token:",token);
+    return res.status(200).json({token});
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "something went wrong! Internal Server Error" });
+  }
+};
+
 module.exports = {
   getUser,
   createUser,
@@ -289,5 +319,6 @@ module.exports = {
   forgotPasswordPage,
   forgotPassword,
   setPasswordPage,
-  setPassword
+  setPassword,
+  adminLogin
 };

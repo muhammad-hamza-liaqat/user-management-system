@@ -1,19 +1,19 @@
 const userModel = require("../Models/userModel");
 
-const isthisUser = async (req,res,next)=>{
+const isthisAdmin = async (req,res,next)=>{
     const {email} = req.body;
     const user = await userModel.findOne({
         where:{
             email:email
         }
-    })
-    if (user && user.isAdmin === false){
+    });
+    if (user && user.isAdmin && user.isVerified === true){
         console.log("login");
         next();
     }
     else{
-        return res.status(403).json({ message: "only non-admin users can login"})
+        return res.status(403).json({ message: "only admin can login"})
     }
 }
 
-module.exports = isthisUser
+module.exports = isthisAdmin
