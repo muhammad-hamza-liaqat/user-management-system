@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-const apiKey = 'your open ai key here';
+const apiKey = 'your open-ai api key';
 const apiUrl = 'https://api.openai.com/v1/engines/davinci/completions';
 
 async function queryChatGPT(prompt, retries = 3, delay = 1000) {
@@ -8,8 +8,8 @@ async function queryChatGPT(prompt, retries = 3, delay = 1000) {
     try {
       const response = await axios.post(apiUrl, {
         prompt: prompt,
-        max_tokens: 4096,
-        temperature: 0.7,
+        max_tokens: 2000,
+        temperature: 1.0,
         stop: '\n'
       }, {
         headers: {
@@ -26,7 +26,9 @@ async function queryChatGPT(prompt, retries = 3, delay = 1000) {
         await new Promise(resolve => setTimeout(resolve, delay));
         delay *= 2; 
       } else {
-        console.error(`Error: ${response.status} - ${response.data.error.message}`);
+        const errorMessage = response.data.error ? response.data.error.message : 'Unknown error';
+        console.error(`Error: ${response.status} - ${errorMessage}`);
+        return `Error: ${response.status} - ${errorMessage}`;
       }
     } catch (error) {
       // If the request was made and received a response but contains an error
@@ -37,7 +39,16 @@ async function queryChatGPT(prompt, retries = 3, delay = 1000) {
         delay *= 2; 
       } else {
         const statusCode = error.response ? error.response.status : 'unknown';
-        console.error(`Error: ${statusCode} - ${error.message}`);
+        const errorMessage = error.response && error.response.data ? error.response.data.error.message : 'Unknown error';
+
+        // Handle the specific error case for maximum context length
+        if (statusCode === 400 && errorMessage.includes('maximum context length')) {
+          console.error(`Error: ${statusCode} - ${errorMessage}`);
+          return `Error: ${statusCode} - Please reduce your prompt or completion length.`;
+        }
+
+        console.error(`Error: ${statusCode} - ${errorMessage}`);
+        return `Error: ${statusCode} - ${errorMessage}`;
       }
     }
   }
