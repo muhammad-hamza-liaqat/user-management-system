@@ -3,20 +3,16 @@ const bcrypt = require("bcrypt");
 const { v4: uuidv4 } = require("uuid");
 const nodemailer = require("nodemailer");
 const schedule = require("node-schedule");
-const {
-  transporter,
-  sendVerificationEmail,
-  emailQueue,
-} = require("../Services/nodeMailer.js");
+const {transporter, sendVerificationEmail, emailQueue} = require("../Services/nodeMailer.js");
 const { where } = require("sequelize");
 const standardizeResponse = require("../Middleware/responseFormat")
-
+const jwt = require("jsonwebtoken");
 
 
 
 
 const getUser = async (req, res) => {
-  // res.status(200).json({ message: "hello from add-user Controller" });
+  
   res.apiSuccess(200,"hello from add-user controller")
 
 };
@@ -163,8 +159,11 @@ const userLogin = async (req, res) => {
     if (!validatePassword) {
       return res.status(401).json({ message: "Invalid Email or Password" });
     }
-    console.log("user login successfully!");
-    return res.status(200).json({ message: "login successfully!" });
+    // adding the jwt token for the verification
+    const token = jwt.sign({userId: userModel.userId, username: userModel.firstName, email:userModel.email}, process.env.Secret_KEY, { expiresIn: "1d"})
+
+    console.log("token:",token);
+    return res.status(200).json({token});
   } catch (error) {
     return res
       .status(500)

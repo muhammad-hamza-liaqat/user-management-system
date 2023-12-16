@@ -7,7 +7,7 @@ const isthisUser = async (req,res,next)=>{
             email:email
         }
     })
-    if (user && user.isAdmin === false){
+    if (user && user.isAdmin === true){
         console.log("login");
         next();
     }
