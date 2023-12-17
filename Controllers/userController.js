@@ -3,18 +3,17 @@ const bcrypt = require("bcrypt");
 const { v4: uuidv4 } = require("uuid");
 const nodemailer = require("nodemailer");
 const schedule = require("node-schedule");
-const {transporter, sendVerificationEmail, emailQueue} = require("../Services/nodeMailer.js");
+const {
+  transporter,
+  sendVerificationEmail,
+  emailQueue,
+} = require("../Services/nodeMailer.js");
 const { where } = require("sequelize");
-const standardizeResponse = require("../Middleware/responseFormat")
+const standardizeResponse = require("../Middleware/responseFormat");
 const jwt = require("jsonwebtoken");
 
-
-
-
 const getUser = async (req, res) => {
-  
-  res.apiSuccess(200,"hello from add-user controller")
-
+  res.apiSuccess(200, "hello from add-user controller");
 };
 
 const createUser = async (req, res) => {
@@ -160,10 +159,19 @@ const userLogin = async (req, res) => {
       return res.status(401).json({ message: "Invalid Email or Password" });
     }
     // adding the jwt token for the verification
-    const token = jwt.sign({userId: userModel.userId, username: userModel.firstName, email:userModel.email, isAdmin: userModel.isAdmin}, process.env.Secret_KEY, { expiresIn: "1d"})
+    const token = jwt.sign(
+      {
+        userId: userModel.userId,
+        username: userModel.firstName,
+        email: userModel.email,
+        isAdmin: userModel.isAdmin,
+      },
+      process.env.Secret_KEY,
+      { expiresIn: "1d" }
+    );
 
-    console.log("token:",token);
-    return res.status(200).json({token});
+    console.log("token:", token);
+    return res.status(200).json({ token });
   } catch (error) {
     return res
       .status(500)
@@ -218,12 +226,17 @@ const forgotPassword = async (req, res) => {
     if (!user) {
       return res.status(400).json({ message: "record not found!" });
     }
-    
-    if (user.password===null || user.password==""){
-      return res.status(400).json({message: "check your mail to set the password again- request hitted before"})
+
+    if (user.password === null || user.password == "") {
+      return res
+        .status(400)
+        .json({
+          message:
+            "check your mail to set the password again- request hitted before",
+        });
     }
     await user.update({ password: null });
-    console.log("Mail sent to your email address. follow the instructions")
+    console.log("Mail sent to your email address. follow the instructions");
     const resetContent = `
     <html>
       <head>
@@ -249,35 +262,35 @@ const forgotPassword = async (req, res) => {
       text: "Hello App Family, you have generated the request for the reset email password",
       html: resetContent,
     });
-    return res.status(201).json({message: "email sent check the email"})
-
+    return res.status(201).json({ message: "email sent check the email" });
   } catch (error) {
     console.log("error:", error);
     return res.status(500).json({ message: "internal server error" });
   }
 };
 
-const setPasswordPage =(req,res)=>{
-  res.end("setPasswordPage render()")
+const setPasswordPage = (req, res) => {
+  res.end("setPasswordPage render()");
 };
 
-const setPassword = async(req,res)=>{
-  try{
-    const {password} =req.body;
+const setPassword = async (req, res) => {
+  try {
+    const { password } = req.body;
     const email = req.params.email;
-    const user = await userModel.findOne({where:{ email: email}});
-    if (!user){
-      return res.status(400).json({message: "user don't exist"})
+    const user = await userModel.findOne({ where: { email: email } });
+    if (!user) {
+      return res.status(400).json({ message: "user don't exist" });
     }
-    const hashedPassword =  await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
     await user.update({ password: hashedPassword });
-    return res.status(201).json({message: "user has successfully set the password"})
-  } catch(error){
-    console.log("error:",error);
-    return res.status(500).json({message: "internal server error"})
+    return res
+      .status(201)
+      .json({ message: "user has successfully set the password" });
+  } catch (error) {
+    console.log("error:", error);
+    return res.status(500).json({ message: "internal server error" });
   }
 };
-
 
 const adminLogin = async (req, res) => {
   const { email, password } = req.body;
@@ -297,10 +310,19 @@ const adminLogin = async (req, res) => {
       return res.status(401).json({ message: "Invalid Email or Password" });
     }
     // adding the jwt token for the verification
-    const token = jwt.sign({userId: userModel.userId, username: userModel.firstName, email:userModel.email, isAdmin: userModel.isAdmin}, process.env.Secret_KEY, { expiresIn: "1d"})
+    const token = jwt.sign(
+      {
+        userId: userModel.userId,
+        username: userModel.firstName,
+        email: userModel.email,
+        isAdmin: userModel.isAdmin,
+      },
+      process.env.Secret_KEY,
+      { expiresIn: "1d" }
+    );
 
-    console.log("token:",token);
-    return res.status(200).json({token});
+    console.log("token:", token);
+    return res.status(200).json({ token });
   } catch (error) {
     return res
       .status(500)
@@ -308,19 +330,20 @@ const adminLogin = async (req, res) => {
   }
 };
 
-const findAllUsers = async(req,res)=>{
-  try{
-    const users = await userModel.findAll({})
-    if (!users){
-      return res.status(404).json({message: "users not found!"})
+const findAllUsers = async (req, res) => {
+  try {
+    const users = await userModel.findAll({});
+    if (!users) {
+      return res.status(404).json({ message: "users not found!" });
     }
     res.json(users);
-
-  } catch(error){
-    return res.status(500).json({message: "something went wrong! internal server error"})
+  } catch (error) {
+    console.log("error:", error);
+    return res
+      .status(500)
+      .json({ message: "something went wrong! internal server error" });
   }
-}
-
+};
 
 module.exports = {
   getUser,
