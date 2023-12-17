@@ -29,11 +29,11 @@ const jobModel = sequelize.define("jobs", {
   },
   status: {
     type: DataTypes.ENUM("accepted", "rejected", "pending"),
-    allowNull: false,
+    allowNull: true,
     defaultValue: "pending",
   },
   cv: {
-    type: DataTypes.BLOB,
+    type: DataTypes.STRING,
     allowNull: false,
   },
   age: {
@@ -43,6 +43,7 @@ const jobModel = sequelize.define("jobs", {
   isDelete: {
     type: DataTypes.BOOLEAN,
     allowNull: true,
+    defaultValue: false
   },
 }, {
   tableName: "jobs",
