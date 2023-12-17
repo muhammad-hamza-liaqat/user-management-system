@@ -308,6 +308,20 @@ const adminLogin = async (req, res) => {
   }
 };
 
+const findAllUsers = async(req,res)=>{
+  try{
+    const users = await userModel.findAll({})
+    if (!users){
+      return res.status(404).json({message: "users not found!"})
+    }
+    res.json(users);
+
+  } catch(error){
+    return res.status(500).json({message: "something went wrong! internal server error"})
+  }
+}
+
+
 module.exports = {
   getUser,
   createUser,
@@ -320,5 +334,6 @@ module.exports = {
   forgotPassword,
   setPasswordPage,
   setPassword,
-  adminLogin
+  adminLogin,
+  findAllUsers,
 };
