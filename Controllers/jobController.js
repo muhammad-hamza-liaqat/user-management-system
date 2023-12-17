@@ -15,6 +15,7 @@ const applyJob = async (req, res) => {
   const { userName, qualification, email, cnic, phoneNumber, age } = req.body;
 
   try {
+    console.log(req.body)
     if (!userName || !qualification || !email || !cnic || !phoneNumber || !age) {
       return res.status(400).json({ message: "All fields are required!" });
     }
