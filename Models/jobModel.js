@@ -1,18 +1,61 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../Database/connection'); 
+const { DataTypes } = require("sequelize");
+const sequelize = require("../Database/connection");
 
-const Job = sequelize.define('jobs', {
-    email: {
-        type: DataTypes.STRING,
-    },
-
+const jobModel = sequelize.define("jobs", {
+  applicantID: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+  },
+  userName: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  qualification: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  email: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  cnic: {
+    type: DataTypes.NUMBER,
+    allowNull: false,
+  },
+  phoneNumber: {
+    type: DataTypes.NUMBER,
+    allowNull: false,
+  },
+  status: {
+    type: DataTypes.ENUM("accepted", "rejected", "pending"),
+    allowNull: false,
+    defaultValue: "pending",
+  },
+  cv: {
+    type: DataTypes.BLOB,
+    allowNull: false,
+  },
+  age: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  isDelete: {
+    type: DataTypes.BOOLEAN,
+    allowNull: true,
+  },
+},{
+    tableName: "jobs",
+    timestamps: true
 });
+
 sequelize.sync()
     .then(() => {
-        console.log('Job model synchronized with the database.');
+        console.log('jobModel synchronized with the database(finalProject).');
     })
     .catch((error) => {
-        console.error('Error synchronizing Job model:', error);
+        console.error('Error synchronizing jobModel', error);
     });
 
-module.exports = Job;
+
+module.exports = jobModel
