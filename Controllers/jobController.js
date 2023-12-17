@@ -15,18 +15,19 @@ const applyJob = async (req, res) => {
   const { userName, qualification, email, cnic, phoneNumber, age } = req.body;
 
   try {
-    console.log(req.body)
+    console.log(req.body); // Log the entire request body
+    console.log(userName, qualification, email, cnic, phoneNumber, age); // Log individual fields
+
     if (!userName || !qualification || !email || !cnic || !phoneNumber || !age) {
       return res.status(400).json({ message: "All fields are required!" });
     }
 
-    if (!req.files || Object.keys(req.files).length === 0) {
-      return res.status(400).json({ message: 'No files were uploaded.' });
-    }
+    // if (!req.files || Object.keys(req.files).length === 0) {
+    //   return res.status(400).json({ message: 'No files were uploaded.' });
+    // }
 
     const cvFile = req.files.cv;
-    // path for saving the resume
-    const cvPath = `${__dirname}/../uploads/${cvFile.name}`;
+    const cvPath = `${__dirname}/../Uploads/${cvFile.name}`;
 
     cvFile.mv(cvPath, (err) => {
       if (err) {
