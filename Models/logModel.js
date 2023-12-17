@@ -45,4 +45,12 @@ const LogModel = sequelize.define("logs", {
   },
 });
 
+sequelize.sync()
+  .then(() => {
+    console.log('logModel synchronized with the database(finalProject).');
+  })
+  .catch((error) => {
+    console.error('Error synchronizing logModel', error);
+});
+
 module.exports = LogModel;
