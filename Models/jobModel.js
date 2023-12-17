@@ -20,11 +20,11 @@ const jobModel = sequelize.define("jobs", {
     allowNull: false,
   },
   cnic: {
-    type: DataTypes.NUMBER,
+    type: DataTypes.STRING, // Corrected data type
     allowNull: false,
   },
   phoneNumber: {
-    type: DataTypes.NUMBER,
+    type: DataTypes.STRING, // Corrected data type
     allowNull: false,
   },
   status: {
@@ -44,18 +44,17 @@ const jobModel = sequelize.define("jobs", {
     type: DataTypes.BOOLEAN,
     allowNull: true,
   },
-},{
-    tableName: "jobs",
-    timestamps: true
+}, {
+  tableName: "jobs",
+  timestamps: true
 });
 
 sequelize.sync()
-    .then(() => {
-        console.log('jobModel synchronized with the database(finalProject).');
-    })
-    .catch((error) => {
-        console.error('Error synchronizing jobModel', error);
-    });
+  .then(() => {
+    console.log('jobModel synchronized with the database(finalProject).');
+  })
+  .catch((error) => {
+    console.error('Error synchronizing jobModel', error);
+  });
 
-
-module.exports = jobModel
+module.exports = jobModel;
