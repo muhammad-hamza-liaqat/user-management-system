@@ -4,7 +4,7 @@ const { v4: uuidv4 } = require("uuid");
 const jobModel = require("../Models/jobModel");
 const fs = require("fs");
 const path = require("path");
-const { Op } = require("sequelize");
+const { Op, where } = require("sequelize");
 
 // Define storage configuration
 const storage = multer.diskStorage({
@@ -170,14 +170,12 @@ const acceptApplication = async (req, res) => {
         .json({ message: "No application exists against this token" });
     }
     if (applicationAccept.status === "accepted") {
-      return res.status(400).json({ message: "Already accepted" });
+      return res.status(409).json({ message: "Already accepted" });
     }
     if (applicationAccept.status === "rejected") {
-      return res
-        .status(400)
-        .json({
-          message: "This application cannot be accepted as it is rejected",
-        });
+      return res.status(404).json({
+        message: "This application cannot be accepted as it is rejected",
+      });
     }
 
     // Update the status of the found application
@@ -200,6 +198,47 @@ const acceptApplication = async (req, res) => {
   }
 };
 
+const rejectApplication = async (req, res) => {
+  const id = req.params.id;
+  try {
+    let applicationRejected = await jobModel.findOne({
+      where: { applicantId: id },
+    });
+
+    if (!applicationRejected) {
+      return res
+        .status(404)
+        .json({ message: "No application exists against this token" });
+    }
+
+    if (applicationRejected.status === "rejected") {
+      return res
+        .status(409)
+        .json({ message: "already rejected." });
+    }
+
+    if (applicationRejected.status === "accepted") {
+      return res.status(400).json({ message: "cannot reject the application because it is already accepted" });
+    }
+
+    if (applicationRejected.status === "pending") {
+      await jobModel.update(
+        { status: "rejected" },
+        {
+          where: {
+            applicantId: id,
+          },
+        }
+      );
+    }
+
+    res.status(200).json({ message: "Application has been rejected." });
+  } catch (error) {
+    console.log("error", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
 module.exports = {
   handleFileUpload,
   submitForm,
@@ -207,4 +246,5 @@ module.exports = {
   downloadResume,
   findAllApplications,
   acceptApplication,
+  rejectApplication,
 };
