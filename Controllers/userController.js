@@ -60,7 +60,7 @@ const createUser = async (req, res) => {
         <div style="background-color: #f2f2f2; padding: 20px; border-radius: 10px;">
           <h2 style="color: #333;">Email Verification</h2>
           <p>Thank you for signing up! To complete your registration, please click the button below to verify your email address:</p>
-          <a href="http://localhost:8080/user/verify-user/${email}/${rememberTokenForUser.token}" target="_blank" style="text-decoration: none;">
+          <a href="http://localhost:8080/#/AdminDashboard/ConfirmPass" target="_blank" style="text-decoration: none;">
             <button style="background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
               Verify Email & create password
             </button>
@@ -126,10 +126,10 @@ const verifyUserToken = async (req, res) => {
         user.rememberToken = null;
         user.isVerified = true;
         user.save();
-        return res.redirect("http://localhost:8080/user/create-password");
+        // return res.redirect("http://localhost:8080/#/AdminDashboard/ConfirmPass");
       }
     } else {
-      return res.status(403).json({ message: "token has expired" });
+      return res.status(401).json({ message: "token has expired" });
     }
     return res.status(403).json({ message: "invalid token!" });
   } catch (error) {
@@ -182,13 +182,16 @@ const userLogin = async (req, res) => {
 };
 
 const createPassword = async (req, res) => {
-  const { email, password } = req.body;
+  const email = req.params.email;
+  
+  const  password = req.body.password;
+
 
   try {
     const user = await userModel.findOne({ where: { email: email } });
     if (!user) {
       console.log("this user does not exist in the records");
-      return res.status(500).json({ message: "user not found!" });
+      return res.status(404).json({ message: "user not found!" });
     }
     if (user.isVerified === false) {
       console.log("the user is not verified. please verify your account first");
@@ -207,7 +210,7 @@ const createPassword = async (req, res) => {
       const hashedPassword = await bcrypt.hash(password, 15);
       await user.update({ password: hashedPassword });
       console.log(hashedPassword);
-      return res.status(201).json({ message: "password created!" });
+      return res.status(200).json({ message: "password created!" });
     }
   } catch (error) {
     console.log(error);
