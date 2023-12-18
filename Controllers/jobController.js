@@ -132,11 +132,20 @@ const downloadResume = async (req, res) => {
 const findAllApplications = async (req, res) => {
   try {
     const all = await jobModel.findAll({
-      attributes: ["applicantId", "userName", "email", "qualification", "cnic", "address", "phoneNumber", "status"],
+      attributes: [
+        "applicantId",
+        "userName",
+        "email",
+        "qualification",
+        "cnic",
+        "address",
+        "phoneNumber",
+        "status",
+      ],
       where: {
         status: {
           // find only pending and accepted appplicants only
-          [Op.or]: ["pending", "accepted"],
+          [Op.or]: ["accepted", "pending"],
         },
       },
     });
@@ -147,10 +156,55 @@ const findAllApplications = async (req, res) => {
   }
 };
 
+const acceptApplication = async (req, res) => {
+  const id = req.params.id;
+  try {
+    const applicationAccept = await jobModel.findOne({
+      where: {
+        applicantId: id,
+      },
+    });
+    if (!applicationAccept) {
+      return res
+        .status(404)
+        .json({ message: "No application exists against this token" });
+    }
+    if (applicationAccept.status === "accepted") {
+      return res.status(400).json({ message: "Already accepted" });
+    }
+    if (applicationAccept.status === "rejected") {
+      return res
+        .status(400)
+        .json({
+          message: "This application cannot be accepted as it is rejected",
+        });
+    }
+
+    // Update the status of the found application
+    await jobModel.update(
+      { status: "accepted" },
+      {
+        where: {
+          applicantId: id,
+        },
+      }
+    );
+
+    console.log(applicationAccept);
+    res
+      .status(200)
+      .json({ message: "Application has been accepted. Congratulations!" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
 module.exports = {
   handleFileUpload,
   submitForm,
   applyJob,
   downloadResume,
   findAllApplications,
+  acceptApplication,
 };
