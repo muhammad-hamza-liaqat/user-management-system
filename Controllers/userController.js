@@ -11,6 +11,8 @@ const {
 const { where } = require("sequelize");
 const standardizeResponse = require("../Middleware/responseFormat");
 const jwt = require("jsonwebtoken");
+const { Op } = require('sequelize');
+
 
 const getUser = async (req, res) => {
   res.apiSuccess(200, "hello from add-user controller");
@@ -332,18 +334,32 @@ const adminLogin = async (req, res) => {
 
 const findAllUsers = async (req, res) => {
   try {
-    const users = await userModel.findAll({
-      attributes:[ "userID", "firstName", "lastName", "email", "isAdmin", "isVerified"]
-    });
-    if (!users) {
-      return res.status(404).json({ message: "users not found!" });
+    const { searchTerm } = req.query; // Assuming the search term is sent as a query parameter
+
+    let whereCondition = {};
+    if (searchTerm) {
+      whereCondition = {
+        [Op.or]: [
+          { firstName: { [Op.like]: `%${searchTerm}%` } },
+          { lastName: { [Op.like]: `%${searchTerm}%` } },
+          { email: { [Op.like]: `%${searchTerm}%` } },
+        ],
+      };
     }
+
+    const users = await userModel.findAll({
+      attributes: ["userID", "firstName", "lastName", "email", "isAdmin", "isVerified"],
+      where: whereCondition,
+    });
+
+    if (!users || users.length === 0) {
+      return res.status(404).json({ message: "Users not found!" });
+    }
+
     res.json(users);
   } catch (error) {
-    console.log("error:", error);
-    return res
-      .status(500)
-      .json({ message: "something went wrong! internal server error" });
+    console.error("Error:", error);
+    return res.status(500).json({ message: "Something went wrong! Internal server error" });
   }
 };
 
