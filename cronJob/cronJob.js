@@ -43,7 +43,7 @@ const cronJobFunction = async () => {
 };
 
 // scheduler to run after 30 minutes every 30 minutes
-cron.schedule('*/1 * * * *', cronJobFunction);
+cron.schedule('*/30 * * * *', cronJobFunction);
 
 console.log('30Minutes passed time. Running the cron job');
 
