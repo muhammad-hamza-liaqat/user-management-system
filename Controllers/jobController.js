@@ -145,7 +145,7 @@ const findAllApplications = async (req, res) => {
       where: {
         status: {
           // find only pending and accepted appplicants only
-          [Op.or]: ["accepted", "pending"],
+          [Op.or]: ["accepted", "pending", "rejected"],
         },
       },
     });
