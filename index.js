@@ -12,7 +12,8 @@ require("./Database/connection");
 const bodyParser = require("body-parser");
 const rateLimit = require("express-rate-limit");
 const cors = require("cors");
-const { logger, LogModel } = require("./Services/winston");
+const { logger } = require("./Services/winston");
+const LogModel = require("./Models/logModel")
 
 // winston middleware for logging
 app.use((req, res, next) => {
@@ -28,6 +29,8 @@ app.use((req, res, next) => {
       acceptEncoding: req.headers["accept-encoding"],
       connection: req.headers.connection,
       statusCode: res.statusCode,
+      userName: res.userName,
+      email: res.email
     };
     LogModel.create(logData).then(() => {
       console.log(logData);

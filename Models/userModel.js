@@ -113,7 +113,7 @@ sequelize.sync()
     })
     .catch((error) => {
         console.error('Error synchronizing userModel', error);
-    });
+});
 
 module.exports = userModel;
 
