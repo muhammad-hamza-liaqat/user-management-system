@@ -14,6 +14,9 @@ const rateLimit = require("express-rate-limit");
 const cors = require("cors");
 const { logger } = require("./Services/winston");
 const LogModel = require("./Models/logModel")
+const cron = require('node-cron');
+
+const cronJob = require("./cronJob/cronJob")
 
 // winston middleware for logging
 app.use((req, res, next) => {
