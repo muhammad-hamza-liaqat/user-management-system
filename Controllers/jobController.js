@@ -4,6 +4,7 @@ const { v4: uuidv4 } = require("uuid");
 const jobModel = require("../Models/jobModel");
 const fs = require("fs");
 const path = require("path");
+const { Op } = require("sequelize");
 
 // Define storage configuration
 const storage = multer.diskStorage({
@@ -102,7 +103,7 @@ const downloadResume = async (req, res) => {
       return res.status(404).send("CV not found");
     }
     const cvFilePath = applicant.cv;
-    console.log(cvFilePath)
+    console.log(cvFilePath);
     console.log("CV File Path:", cvFilePath);
     if (fs.existsSync(cvFilePath)) {
       const fileExtension = path.extname(applicant.cv);
@@ -128,9 +129,28 @@ const downloadResume = async (req, res) => {
   }
 };
 
+const findAllApplications = async (req, res) => {
+  try {
+    const all = await jobModel.findAll({
+      attributes: ["applicantId", "userName", "email", "qualification", "cnic", "address", "phoneNumber", "status"],
+      where: {
+        status: {
+          // find only pending and accepted appplicants only
+          [Op.or]: ["pending", "accepted"],
+        },
+      },
+    });
+    res.status(200).json(all);
+  } catch (error) {
+    console.log("error:", error),
+      res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
 module.exports = {
   handleFileUpload,
   submitForm,
   applyJob,
   downloadResume,
+  findAllApplications,
 };
