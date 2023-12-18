@@ -23,7 +23,7 @@ class SequelizeTransport extends winston.Transport {
       statusCode: info.statusCode || 404,
       query: info.query,
       userName: info.userName,
-      email: info.email
+      email: info.email,
     })
       .then((createdLog) => {
         console.log("Created Log Entry:", createdLog);

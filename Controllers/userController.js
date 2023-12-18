@@ -332,7 +332,9 @@ const adminLogin = async (req, res) => {
 
 const findAllUsers = async (req, res) => {
   try {
-    const users = await userModel.findAll({});
+    const users = await userModel.findAll({
+      attributes:[ "userID", "firstName", "lastName", "email", "isAdmin", "isVerified"]
+    });
     if (!users) {
       return res.status(404).json({ message: "users not found!" });
     }
