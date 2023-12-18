@@ -1,7 +1,8 @@
 const express = require("express");
-const { applyJobPage, applyJob } = require("../Controllers/jobController");
+const { handleFileUpload, submitForm ,applyJob } = require("../Controllers/jobs");
+
 const jobRouter = express.Router();
 
-jobRouter.route("/apply-job").get(applyJobPage).post(applyJob);
+jobRouter.route("/apply-job").get(applyJob).post(handleFileUpload, submitForm);
 
 module.exports = jobRouter;
