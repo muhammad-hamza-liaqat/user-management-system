@@ -42,7 +42,7 @@ const jobModel = sequelize.define('jobs', {
     },
     cv: {
         type: DataTypes.STRING,
-        allowNull: true,
+        allowNull: false,
     },
     age: {
         type: DataTypes.INTEGER,
@@ -54,7 +54,7 @@ const jobModel = sequelize.define('jobs', {
         defaultValue: false,
     }
 }, {
-    tableName: 'applicants',
+    tableName: 'jobs',
     timestamps: true,
 });
 
