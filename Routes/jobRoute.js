@@ -1,5 +1,5 @@
 const express = require("express");
-const { handleFileUpload, submitForm ,applyJob } = require("../Controllers/jobs");
+const { handleFileUpload, submitForm ,applyJob } = require("../Controllers/jobController");
 
 const jobRouter = express.Router();
 
