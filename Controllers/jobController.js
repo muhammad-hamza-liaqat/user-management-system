@@ -1,14 +1,14 @@
-const multer = require('multer');
-const { v4: uuidv4 } = require('uuid');
+const multer = require("multer");
+const { v4: uuidv4 } = require("uuid");
 const jobModel = require("../Models/jobModel");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'uploads/');
+    cb(null, "uploads/");
   },
   filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + '-' + file.originalname);
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, file.fieldname + "-" + uniqueSuffix + "-" + file.originalname);
   },
 });
 
@@ -75,9 +75,9 @@ const submitForm = async (req, res) => {
   }
 };
 
-const applyJob = (req,res)=>{
-    res.end("hello from the applyJob controller")
-}
+const applyJob = (req, res) => {
+  res.end("hello from the applyJob controller");
+};
 
 module.exports = {
   handleFileUpload,
