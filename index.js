@@ -77,10 +77,12 @@ io.on("connection", (socket) => {
 const userRoutes = require("./Routes/userRoute");
 const jobRoutes = require("./Routes/jobRoute");
 const socketRoutes = require("./Routes/socketRoute");
+const logRoutes = require("./Routes/logRoute");
 
 app.use("/user", userRoutes);
 app.use("/job", jobRoutes);
 app.use("/chat", socketRoutes);
+app.use("/log", logRoutes);
 
 // middleware for 404 error page
 app.use(function (req, res, next) {
