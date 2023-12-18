@@ -1,3 +1,5 @@
+require("dotenv").config()
+
 function adminAuthCheck(req, res, next) {
   try {
     const auth_header = req.headers.authorization;
@@ -21,7 +23,7 @@ function adminAuthCheck(req, res, next) {
 
       next();
     } else {
-      res.send(401, "YOU ARE NOT ADMIN");
+      res.send(401, "you're not an admin");
     }
   } catch (error) {
     res.send(401, "Unauthorized request");
