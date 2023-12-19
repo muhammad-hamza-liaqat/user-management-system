@@ -5,6 +5,11 @@ const jobModel = require("../Models/jobModel");
 const fs = require("fs");
 const path = require("path");
 const { Op, where } = require("sequelize");
+const {
+  transporter,
+  sendVerificationEmail,
+  rejectedApplication,
+} = require("../Services/rejectedApplication");
 
 // Define storage configuration
 const storage = multer.diskStorage({
@@ -232,7 +237,33 @@ const rejectApplication = async (req, res) => {
           },
         }
       );
-    }
+    };
+
+    const rejectionContent = `
+    <html>
+      <head>
+        <title>Job Application Rejection</title>
+      </head>
+      <body style="font-family: Arial, sans-serif;">
+  
+        <div style="background-color: #f2f2f2; padding: 20px; border-radius: 10px;">
+          <h2 style="color: #333;">Job Application Status</h2>
+          <p>We appreciate the time and effort you put into applying for the position at XYZ Company. After careful consideration, we regret to inform you that your application has not been successful at this time.</p>
+          <p>We want to thank you for your interest in joining our team, and we encourage you to apply for future opportunities that match your skills and experience.</p>
+          <p>If you have any questions or would like feedback on your application, feel free to reach out to our HR department at hr@example.com.</p>
+          <p>Thank you again, and we wish you the best in your job search.</p>
+        </div>
+      </body>
+    </html>
+  `;
+
+  await rejectedApplication.add({
+    to: applicationRejected.email,
+    subject: "Application Rejected",
+    text: "this email is about the status of your job application",
+    html: rejectionContent,
+  });
+
 
     res.status(200).json({ message: "Application has been rejected." });
   } catch (error) {

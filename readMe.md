@@ -24,3 +24,7 @@ http://192.168.11.178:8080/user/admin-login
 
 ![Alt text](chatMessage.png)
 ![Alt text](postMan.png)
+![Alt text](rejectionImage.png)
+
+
+Email sent to h1@gmail.com
