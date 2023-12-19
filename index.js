@@ -75,26 +75,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use(limiter);
 app.use(standardizeResponse);
 
-// Socket.io connection handling
-io.on("connection", (socket) => {
-  console.log("A user connected");
-
-  // Handle chat events here
-  socket.on("chat message", (msg) => {
-    console.log(`Message: ${msg}`);
-    io.emit("chat message", msg);
-  });
-
-  socket.on("disconnect", () => {
-    console.log("User disconnected");
-  });
-});
 
 // adding the routes
 const userRoutes = require("./Routes/userRoute");
 const jobRoutes = require("./Routes/jobRoute");
 const socketRoutes = require("./Routes/socketRoute");
 const logRoutes = require("./Routes/logRoute");
+const sendMessage = require("./Socket.io/chatGPTModel");
+const chatModel = require("./Models/chatModel");
 
 app.use("/user", userRoutes);
 app.use("/job", jobRoutes);
@@ -109,6 +97,35 @@ app.use(function (req, res, next) {
 // views setup
 app.set("view engine", "ejs");
 app.set("views", "./Views");
+
+io.on('connection', (socket) => {
+  console.log("A user connected");
+  let user="user"
+  socket.on('chat message', async (msg) => {
+    console.log('message received from client: ' + msg);
+    try {
+      const gptResponse = await sendMessage({ body: { question: msg } });
+      if (gptResponse) {
+        // Save GPT response to the database
+        await chatModel.create({ userName: user + 1, question: msg, response: gptResponse });
+        // Emit the GPT response back to the specific client
+        socket.emit('chat message', gptResponse);
+      } else {
+        console.error('Empty response from GPT-3.5 Turbo API');
+        // Handle the case where the API response is empty (e.g., emit an error message to the client)
+      }
+    } catch (apiError) {
+      console.error('Error from GPT-3.5 Turbo API:', apiError);
+      // Handle the API error (e.g., emit an error message to the client)
+    }
+  });
+  // Disconnect event handler
+  socket.on('disconnect', () => {
+    console.log('A user disconnected');
+    // Additional disconnect logic if needed
+  });
+});
+
 
 // server
 server.listen(PORT, () => {

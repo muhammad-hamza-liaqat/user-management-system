@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../Database/connection");
 
-const chatModel = sequelize.define("chatbot", {
+const chatModel = sequelize.define("chat", {
   userName: {
     type: DataTypes.STRING,
     allowNull: false,
