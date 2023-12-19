@@ -333,7 +333,9 @@ const adminLogin = async (req, res) => {
 
 const findAllUsers = async (req, res) => {
   try {
-    const { searchTerm } = req.query;
+    const { searchTerm, page, pageSize } = req.query;
+    const currentPage = parseInt(page) || 1;
+    const limit = parseInt(pageSize) || 10;
 
     let whereCondition = {};
     if (searchTerm) {
@@ -345,8 +347,9 @@ const findAllUsers = async (req, res) => {
         ],
       };
     }
+    const totalRecords = await userModel.count();
 
-    const users = await userModel.findAll({
+    const users = await userModel.findAndCountAll({
       attributes: [
         "userID",
         "firstName",
@@ -356,13 +359,24 @@ const findAllUsers = async (req, res) => {
         "isVerified",
       ],
       where: whereCondition,
+      limit,
+      offset: (currentPage-1)*limit,
     });
 
     if (!users || users.length === 0) {
       return res.status(404).json({ message: "Users not found!" });
     }
+    const response ={
+      totalRecords,
+      currentPage,
+      pageSize: limit,
+      users: users.rows,
+    };
+    if (searchTerm){
+      response.filteredCount = Math.min(users.count, limit)
+    }
 
-    res.json(users);
+    res.json(response);
   } catch (error) {
     console.error("Error:", error);
     return res
