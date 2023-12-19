@@ -19,7 +19,12 @@ const userModel = sequelize.define(
         },
         len: {
           args: [3, 255],
-          msg: "First name must be between 3 and 255 characters.",
+          msg: "The firstName should be between 3 and 255 characters.",
+        },
+        validationForFirstName: function (value) {
+          if (/[{};"'~!@#$%^&*()_+=123456789/*\-+]/.test(value)) {
+            throw new Error("special characters or numeric values are not allowed-firstName");
+          }
         },
       },
     },
@@ -28,18 +33,23 @@ const userModel = sequelize.define(
       allowNull: false,
       validate: {
         notNull: {
-          msg: "Last name is required.",
+          msg: "lastNamea is required.",
         },
         len: {
           args: [3, 255],
-          msg: "Last name must be between 3 and 255 characters.",
+          msg: "The lastName should be between 3 and 255 characters.",
+        },
+        validationForFirstName: function (value) {
+          if (/[{};"'~!@#$%^&*()_+=123456789/*\-+]/.test(value)) {
+            throw new Error("special characters or numeric values are not allowed-lastName");
+          }
         },
       },
     },
     email: {
       type: DataTypes.STRING,
       allowNull: false,
-      // unique:true,
+      unique: true, 
       validate: {
         notNull: {
           msg: "Email is required.",
@@ -48,7 +58,6 @@ const userModel = sequelize.define(
           msg: "Invalid email format.",
         },
         customValidator(value) {
-          // Custom validation for domain and "@" sign
           if (!/@/.test(value)) {
             throw new Error("Email must contain @ symbol.");
           }
@@ -59,6 +68,7 @@ const userModel = sequelize.define(
             "hotmail.com",
             "icloud.com",
             "outlook.com",
+            "developerstudios.com",
           ];
           const domain = value.split("@")[1];
 
@@ -72,20 +82,12 @@ const userModel = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true,
       defaultValue: null,
-      // validate: {
-      //   len: {
-      //     args: [6, 255],
-      //     msg: "Password must be between 6 and 255 characters.",
-      //   },
-      //   containsSpecialCharacter(value) {
-      //     // Custom validation for at least one special character
-      //     if (!/[!@#$%^&*(),.?":{}|<>]/.test(value)) {
-      //       throw new Error(
-      //         "Password must contain at least one special character."
-      //       );
-      //     }
-      //   },
-      // },
+      validate: {
+        len: {
+          args: [6, 255],
+          msg: "Password should be between 6 and 255 characters.",
+        },
+      },
     },
     rememberToken: {
       type: DataTypes.STRING,
@@ -107,13 +109,14 @@ const userModel = sequelize.define(
     timestamp: true,
   }
 );
-sequelize.sync()
-    .then(() => {
-        console.log('userModel synchronized with the database(finalProject).');
-    })
-    .catch((error) => {
-        console.error('Error synchronizing userModel', error);
-});
+
+sequelize
+  .sync()
+  .then(() => {
+    console.log("userModel synchronized with the database(finalProject).");
+  })
+  .catch((error) => {
+    console.error("Error synchronizing userModel", error);
+  });
 
 module.exports = userModel;
-

@@ -45,6 +45,6 @@ const cronJobFunction = async () => {
 // scheduler to run after 30 minutes every 30 minutes
 cron.schedule('*/30 * * * *', cronJobFunction);
 
-console.log('30Minutes passed time. Running the cron job');
+console.log('Hello from the cronJob. I will be running after every 30 minutes!');
 
 module.exports = cronJobFunction;

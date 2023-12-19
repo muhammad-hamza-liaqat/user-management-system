@@ -172,7 +172,7 @@ const userLogin = async (req, res) => {
     );
 
     console.log("token:", token);
-    return res.status(200).json({ email: user.email, token: token, isAdmin: user.isAdmin, isVerified: user.isVerified });
+    return res.status(200).json({ firstName: user.firstName,lastName: user.lastName, email: user.email, token: token, isAdmin: user.isAdmin, isVerified: user.isVerified });
   } catch (error) {
     return res
       .status(500)
@@ -322,7 +322,7 @@ const adminLogin = async (req, res) => {
         isAdmin: user.isAdmin,
       },
       process.env.Secret_KEY,
-      { expiresIn: "10m" }
+      { expiresIn: "60m" }
     );
 
     console.log("token:", token);
