@@ -181,7 +181,7 @@ const userLogin = async (req, res) => {
 };
 
 const createPassword = async (req, res) => {
-  const email = req.params.email;
+  const email = req.body.email;
 
   const password = req.body.password;
 
