@@ -162,10 +162,10 @@ const userLogin = async (req, res) => {
     // adding the jwt token for the verification
     const token = jwt.sign(
       {
-        userId: userModel.userId,
-        username: userModel.firstName,
-        email: userModel.email,
-        isAdmin: userModel.isAdmin,
+        userId: user.userId,
+        username: user.firstName,
+        email: user.email,
+        isAdmin: user.isAdmin,
       },
       process.env.Secret_KEY,
       { expiresIn: "30m" }

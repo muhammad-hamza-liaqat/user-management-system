@@ -13,41 +13,58 @@ const bodyParser = require("body-parser");
 const rateLimit = require("express-rate-limit");
 const cors = require("cors");
 const { logger } = require("./Services/winston");
-const LogModel = require("./Models/logModel")
-const cron = require('node-cron');
+const LogModel = require("./Models/logModel");
+const cron = require("node-cron");
+const jwt = require("jsonwebtoken");
 
-const cronJob = require("./cronJob/cronJob")
+const cronJob = require("./cronJob/cronJob");
 
 // winston middleware for logging
-app.use((req, res, next) => {
-  var logData = {};
-  res.on("finish", async () => {
-    logData = {
-      level: req.method,
-      message: req.url,
-      userAgent: req.headers["user-agent"],
-      accept: req.headers.accept,
-      postmanToken: req.headers["postman-token"],
-      host: req.headers.host,
-      acceptEncoding: req.headers["accept-encoding"],
-      connection: req.headers.connection,
-      statusCode: res.statusCode,
-      userName: res.userName,
-      email: res.email
-    };
-    LogModel.create(logData).then(() => {
-      console.log(logData);
-    });
-  });
-  console.log(logData);
+app.use(async (req, res, next) => {
+  const token =
+    req.headers.authorization && req.headers.authorization.split(" ")[1];
+
+  const logData = {};
+
+  if (token) {
+    try {
+      const decoded = jwt.verify(token, process.env.Secret_KEY);
+      logData.userName = decoded.username;
+      logData.email = decoded.email;
+
+      res.on("finish", async () => {
+        logData.level = req.method;
+        logData.message = req.url;
+        logData.userAgent = req.headers["user-agent"];
+        logData.accept = req.headers.accept;
+        logData.postmanToken = req.headers["postman-token"];
+        logData.host = req.headers.host;
+        logData.acceptEncoding = req.headers["accept-encoding"];
+        logData.connection = req.headers.connection;
+        logData.statusCode = res.statusCode;
+
+        logData.userName = logData.userName || "N/A";
+        logData.email = logData.email || "N/A";
+
+        await LogModel.create(logData);
+
+        console.log("Final Log Data:", logData);
+      });
+
+      console.log("Decoded JWT:", decoded);
+    } catch (err) {
+      console.error("Error decoding token:", err);
+    }
+  }
+
   next();
 });
-
 // express-rate-limit
 const limiter = rateLimit({
   windowMs: 1 * 60 * 1000, // one minute
   max: 10, // max 10 requests
-  message: "you have requested too many requests. Please try again later. (RES-429)",
+  message:
+    "you have requested too many requests. Please try again later. (RES-429)",
 });
 
 // middlwares
