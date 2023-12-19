@@ -1,20 +1,18 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../Database/connection");
 
-const Chat = sequelize.define("chats", {
-  email: {
+const chatModel = sequelize.define("chatbot", {
+  userName: {
     type: DataTypes.STRING,
-    allowNull: true,
+    allowNull: false,
   },
   question: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  answers: {
+  response: {
     type: DataTypes.STRING,
-  },
-  error: {
-    type: DataTypes.TEXT,
+    allowNull: false,
   },
 });
 
@@ -24,7 +22,7 @@ sequelize
     console.log("chatModel synchronized with the database(finalProject).");
   })
   .catch((error) => {
-    console.error("Error synchronizing chatModel:", error);
-  });
+    console.error("Error synchronizing chatModel", error);
+});
 
-module.exports = Chat;
+module.exports = chatModel;
