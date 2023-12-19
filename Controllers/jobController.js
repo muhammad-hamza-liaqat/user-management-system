@@ -46,13 +46,15 @@ const submitForm = async (req, res) => {
     age,
     isDelete,
   } = req.body;
-
   let cvPath = "";
   if (req.file) {
     cvPath = req.file.path;
   }
 
   try {
+    if (!userName || !email || !qualification || !cnic || !address || !phoneNumber || !cvPath){
+      return res.status(400).json({message: "all fields are required"})
+    }
     const newApplicant = await jobModel.create({
       applicantId: uuidv4(),
       userName,
