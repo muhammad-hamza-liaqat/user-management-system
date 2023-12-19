@@ -7,13 +7,16 @@ projectFinal
 3- bcrypt => hashing the password
 4- uuid => generating the remember token for verification
 5- nodeMailer => sending the email
-6- cors
+6- cors => interaction with frontend 
 7- bull => background jobs
 8- node-schedule => scheduler
 9- express-rate-limit => limit the hit of Apis in the project
 10- socket.io => for real time messaging as a chatbot
 11- openai => for receiving the prompt and generating the responses.
-12- express fileUpload
+12- multer => uploading the files
+13- jsonwebtoken => for authentication and authorization
+14- winston =. logging the logs
+
 http://192.168.11.179:8080/user/verify-user
 
 ![Alt text](chatMessage.png)
