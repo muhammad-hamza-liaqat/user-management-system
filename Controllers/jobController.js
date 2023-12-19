@@ -138,17 +138,30 @@ const downloadResume = async (req, res) => {
 
 const findAllApplications = async (req, res) => {
   try {
-    const { page = 1, pageSize = 10, status } = req.query;
+    // Extract query parameters for filtration and pagination
+    const { status, page, pageSize } = req.query;
 
-    // Define the filter based on the status parameter
-    const statusFilter = status
-      ? { status: { [Op.in]: status.split(",") } }
-      : {
-          status: {
-            [Op.or]: ["accepted", "pending", "rejected"],
-          },
-        };
+    // Convert pageSize to an integer
+    const pageSizeInt = parseInt(pageSize, 10) || 10; // Default to 10 if pageSize is not provided or invalid
 
+    // Build the where clause based on the status filter
+    const whereClause = {};
+    if (status) {
+      whereClause.status = {
+        [Op.in]: status.split(","), // Split the comma-separated values
+      };
+    } else {
+      // If no status filter provided, default to "pending" and "accepted"
+      whereClause.status = {
+        [Op.or]: ["accepted", "pending"],
+      };
+    }
+
+    // Set up pagination options
+    const offset = (page - 1) * pageSizeInt;
+    const limit = pageSizeInt;
+
+    // Find all records with the applied filters and pagination
     const all = await jobModel.findAndCountAll({
       attributes: [
         "applicantId",
@@ -160,20 +173,23 @@ const findAllApplications = async (req, res) => {
         "phoneNumber",
         "status",
       ],
-      where: statusFilter,
-      offset: (page - 1) * pageSize,
-      limit: pageSize,
+      where: whereClause,
+      offset,
+      limit,
     });
 
-    res.status(200).json({
-      total: all.count,
-      totalPages: Math.ceil(all.count / pageSize),
+    // Prepare response with pagination details
+    const response = {
+      totalRecords: all.count,
+      totalPages: Math.ceil(all.count / pageSizeInt),
       currentPage: page,
-      pageSize: pageSize,
+      pageSize: pageSizeInt,
       data: all.rows,
-    });
+    };
+
+    res.status(200).json(response);
   } catch (error) {
-    console.log("error:", error);
+    console.error("Error:", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
