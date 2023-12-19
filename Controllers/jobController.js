@@ -138,7 +138,18 @@ const downloadResume = async (req, res) => {
 
 const findAllApplications = async (req, res) => {
   try {
-    const all = await jobModel.findAll({
+    const { page = 1, pageSize = 10, status } = req.query;
+
+    // Define the filter based on the status parameter
+    const statusFilter = status
+      ? { status: { [Op.in]: status.split(",") } }
+      : {
+          status: {
+            [Op.or]: ["accepted", "pending", "rejected"],
+          },
+        };
+
+    const all = await jobModel.findAndCountAll({
       attributes: [
         "applicantId",
         "userName",
@@ -149,19 +160,24 @@ const findAllApplications = async (req, res) => {
         "phoneNumber",
         "status",
       ],
-      where: {
-        status: {
-          // find only pending and accepted appplicants only
-          [Op.or]: ["accepted", "pending"],
-        },
-      },
+      where: statusFilter,
+      offset: (page - 1) * pageSize,
+      limit: pageSize,
     });
-    res.status(200).json(all);
+
+    res.status(200).json({
+      total: all.count,
+      totalPages: Math.ceil(all.count / pageSize),
+      currentPage: page,
+      pageSize: pageSize,
+      data: all.rows,
+    });
   } catch (error) {
-    console.log("error:", error),
-      res.status(500).json({ message: "Internal Server Error" });
+    console.log("error:", error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
 
 const acceptApplication = async (req, res) => {
   const id = req.params.id;
