@@ -2,7 +2,13 @@ const logModel = require("../Models/logModel");
 
 const getLogs = async (req, res) => {
   try {
-    const logs = await logModel.findAll({
+    // default page set to 1
+    const page = parseInt(req.query.page) || 1;
+    // number of records in individual page set to 10  by default
+    const pageSize = parseInt(req.query.pageSize) || 10;
+    // calculate offset
+    const offset = (page - 1) * pageSize;
+    const logs = await logModel.findAndCountAll({
       attributes: [
         "id",
         "level",
@@ -17,9 +23,17 @@ const getLogs = async (req, res) => {
       where: {
         level: "post",
       },
+      limit: pageSize,
+      offset: offset,
     });
-
-    res.status(200).json(logs);
+    const totalRecords = logs.count;
+    const response = {
+      logs: logs.rows,
+      totalRecords: totalRecords,
+      currentPage: page,
+      pageSize: pageSize,
+    };
+    res.status(200).json(response);
   } catch (error) {
     console.error("Error:", error);
     res.status(500).json({ message: "Internal Server Error" });
