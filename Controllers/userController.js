@@ -172,7 +172,7 @@ const userLogin = async (req, res) => {
     );
 
     console.log("token:", token);
-    return res.status(200).json({ token });
+    return res.status(200).json({ email: user.email, token: token, isAdmin: user.isAdmin, isVerified: user.isVerified });
   } catch (error) {
     return res
       .status(500)
