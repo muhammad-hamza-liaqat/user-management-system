@@ -138,30 +138,28 @@ const downloadResume = async (req, res) => {
 
 const findAllApplications = async (req, res) => {
   try {
-    // Extract query parameters for filtration and pagination
+    
     const { status, page, pageSize } = req.query;
+    const pageSizeInt = parseInt(pageSize, 10) || 10;
 
-    // Convert pageSize to an integer
-    const pageSizeInt = parseInt(pageSize, 10) || 10; // Default to 10 if pageSize is not provided or invalid
-
-    // Build the where clause based on the status filter
+    
     const whereClause = {};
     if (status) {
       whereClause.status = {
-        [Op.in]: status.split(","), // Split the comma-separated values
+        [Op.in]: status.split(","), 
       };
     } else {
       // If no status filter provided, default to "pending" and "accepted"
       whereClause.status = {
-        [Op.or]: ["accepted", "pending"],
+        [Op.or]: ["accepted", "pending", "rejected"],
       };
     }
 
-    // Set up pagination options
+    
     const offset = (page - 1) * pageSizeInt;
     const limit = pageSizeInt;
 
-    // Find all records with the applied filters and pagination
+    
     const all = await jobModel.findAndCountAll({
       attributes: [
         "applicantId",
@@ -178,7 +176,6 @@ const findAllApplications = async (req, res) => {
       limit,
     });
 
-    // Prepare response with pagination details
     const response = {
       totalRecords: all.count,
       totalPages: Math.ceil(all.count / pageSizeInt),
