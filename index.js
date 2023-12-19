@@ -86,7 +86,7 @@ const chatModel = require("./Models/chatModel");
 app.use("/user", userRoutes);
 app.use("/job", jobRoutes);
 app.use("/chat", socketRoutes);
-app.use("/log", logRoutes);
+app.use("/admin", logRoutes);
 
 // middleware for 404 error page
 app.use(function (req, res, next) {
