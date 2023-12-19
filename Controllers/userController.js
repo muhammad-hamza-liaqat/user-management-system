@@ -11,8 +11,7 @@ const {
 const { where } = require("sequelize");
 const standardizeResponse = require("../Middleware/responseFormat");
 const jwt = require("jsonwebtoken");
-const { Op } = require('sequelize');
-
+const { Op } = require("sequelize");
 
 const getUser = async (req, res) => {
   res.apiSuccess(200, "hello from add-user controller");
@@ -169,7 +168,7 @@ const userLogin = async (req, res) => {
         isAdmin: userModel.isAdmin,
       },
       process.env.Secret_KEY,
-      { expiresIn: "1d" }
+      { expiresIn: "30m" }
     );
 
     console.log("token:", token);
@@ -183,9 +182,8 @@ const userLogin = async (req, res) => {
 
 const createPassword = async (req, res) => {
   const email = req.params.email;
-  
-  const  password = req.body.password;
 
+  const password = req.body.password;
 
   try {
     const user = await userModel.findOne({ where: { email: email } });
@@ -233,12 +231,10 @@ const forgotPassword = async (req, res) => {
     }
 
     if (user.password === null || user.password == "") {
-      return res
-        .status(400)
-        .json({
-          message:
-            "check your mail to set the password again- request hitted before",
-        });
+      return res.status(400).json({
+        message:
+          "check your mail to set the password again- request hitted before",
+      });
     }
     await user.update({ password: null });
     console.log("Mail sent to your email address. follow the instructions");
@@ -323,7 +319,7 @@ const adminLogin = async (req, res) => {
         isAdmin: userModel.isAdmin,
       },
       process.env.Secret_KEY,
-      { expiresIn: "1d" }
+      { expiresIn: "2m" }
     );
 
     console.log("token:", token);
@@ -351,7 +347,14 @@ const findAllUsers = async (req, res) => {
     }
 
     const users = await userModel.findAll({
-      attributes: ["userID", "firstName", "lastName", "email", "isAdmin", "isVerified"],
+      attributes: [
+        "userID",
+        "firstName",
+        "lastName",
+        "email",
+        "isAdmin",
+        "isVerified",
+      ],
       where: whereCondition,
     });
 
@@ -362,7 +365,9 @@ const findAllUsers = async (req, res) => {
     res.json(users);
   } catch (error) {
     console.error("Error:", error);
-    return res.status(500).json({ message: "Something went wrong! Internal server error" });
+    return res
+      .status(500)
+      .json({ message: "Something went wrong! Internal server error" });
   }
 };
 
