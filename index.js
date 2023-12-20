@@ -6,7 +6,7 @@ const socketIO = require("socket.io");
 const app = express();
 const server = http.createServer(app);
 const io = socketIO(server);
-const standardizeResponse = require("./Middleware/responseFormat");
+const apiResponse = require("./Middleware/responseFormat");
 // database
 require("./Database/connection");
 const bodyParser = require("body-parser");
@@ -73,7 +73,7 @@ app.use(bodyParser.json());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(limiter);
-// app.use(standardizeResponse);
+app.use(apiResponse);
 
 // adding the routes
 const userRoutes = require("./Routes/userRoute");

@@ -9,7 +9,7 @@ const {
   emailQueue,
 } = require("../Services/nodeMailer.js");
 const { where } = require("sequelize");
-const standardizeResponse = require("../Middleware/responseFormat");
+const apiResponse = require("../Middleware/responseFormat");
 const jwt = require("jsonwebtoken");
 const { Op } = require("sequelize");
 
@@ -75,10 +75,14 @@ const createUser = async (req, res) => {
       text: "So delighted that you have sign-up to our website. Please cooperate with us for the sign in process",
       html: htmlContent,
     });
+    return res.status(201).sendSuccess({
+      message: "user created successfully!",
+      statusCode: 201,
+      firstName: newUser.firstName,
+      lastName: newUser.lastName,
+      isVerified: newUser.isVerified,
 
-    res
-      .status(201)
-      .json({ message: "user created! Verify email to verify account" });
+    })
     console.log("user Created Successfully!", newUser);
   } catch (error) {
     if (error.name === "SequelizeValidationError") {

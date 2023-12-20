@@ -1,8 +1,12 @@
 const apiResponseMiddleware = (req, res, next) => {
-    const successResponse = (data) => ({
+    const successResponse = (data, statusCode = 200) => ({
       success: true,
       message: 'Request processed successfully',
-      data: data || null
+      data: {
+        message: data.message || null,
+        statusCode,
+        ...data
+      }
     });
   
     // Error response object
@@ -15,12 +19,11 @@ const apiResponseMiddleware = (req, res, next) => {
     res.locals.successResponse = successResponse;
     res.locals.errorResponse = errorResponse;
   
-    res.sendSuccess = (data) => res.json(successResponse(data));
+    res.sendSuccess = (data, statusCode) => res.status(statusCode || 200).json(successResponse(data, statusCode));
   
     res.sendError = (message, statusCode) => res.status(statusCode || 500).json(errorResponse(message, statusCode));
   
     next();
-  };
-  
-  module.exports = apiResponseMiddleware;
-  
+};
+
+module.exports = apiResponseMiddleware;
