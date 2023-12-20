@@ -49,9 +49,8 @@ const createUser = async (req, res) => {
       }
     );
 
-    const verificationLink = `http://localhost:8080/user/verify/${email}/${rememberTokenForUser.token}`
-    const htmlContent =
-    `<html>
+    const verificationLink = `http://localhost:8080/user/verify/${email}/${rememberTokenForUser.token}`;
+    const htmlContent = `<html>
       <head>
         <title>Email Verification</title>
       </head>
@@ -205,9 +204,10 @@ const userLogin = async (req, res) => {
 };
 
 const createPassword = async (req, res) => {
-  const email = req.body.email;
+  const { email } = req.params;
 
   const password = req.body.password;
+  const confirmPassword = req.body.confirmPassword;
 
   try {
     const user = await userModel.findOne({ where: { email: email } });
@@ -223,6 +223,13 @@ const createPassword = async (req, res) => {
         },
         406
       );
+    }
+    if (!confirmPassword) {
+      return res.sendError({ message: "confirmPassword field required" }, 400);
+    }
+
+    if (password !== confirmPassword) {
+      return res.sendError({ message: "password does not matches" }, 400);
     }
 
     console.log(password);
