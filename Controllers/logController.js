@@ -1,7 +1,6 @@
 const logModel = require("../Models/logModel");
 const apiResponse = require("../Middleware/responseFormat");
 
-
 const getLogs = async (req, res) => {
   try {
     // default page set to 1
@@ -35,10 +34,10 @@ const getLogs = async (req, res) => {
       currentPage: page,
       pageSize: pageSize,
     };
-    res.sendSuccess({message: "logs feteched successfully!",response},200);
+    res.sendSuccess({ message: "logs feteched successfully!", response }, 200);
   } catch (error) {
     console.error("Error:", error);
-    res.sendError({ message: "Internal Server Error" },500);
+    res.sendError({ message: "Internal Server Error" }, 500);
   }
 };
 

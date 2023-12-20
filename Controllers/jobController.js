@@ -10,6 +10,7 @@ const {
   sendVerificationEmail,
   rejectedApplication,
 } = require("../Services/rejectedApplication");
+const apiResponse = require("../Middleware/responseFormat");
 
 // Define storage configuration
 const storage = multer.diskStorage({
@@ -31,9 +32,9 @@ const upload = multer({ storage: storage }).single("cv");
 const handleFileUpload = (req, res, next) => {
   upload(req, res, function (err) {
     if (err instanceof multer.MulterError) {
-      return res.status(400).json({ error: "File upload error" });
+      return res.sendError({ message: "File upload error" },400);
     } else if (err) {
-      return res.status(500).json({ error: "Internal server error" });
+      return res.sendError({ message: "Internal server error" },500);
     }
     next();
   });
@@ -74,9 +75,7 @@ const submitForm = async (req, res) => {
       isDelete,
     });
 
-    return res
-      .status(201)
-      .json({ message: "Applicant created successfully", data: newApplicant });
+    return res.sendSuccess({ message: "Applicant created successfully", newApplicant },201);
   } catch (error) {
     if (
       error.name === "SequelizeValidationError" ||
@@ -86,11 +85,11 @@ const submitForm = async (req, res) => {
         error.errors && error.errors.length > 0
           ? error.errors[0].message
           : "Validation error";
-      return res.status(400).json({ error: errorMessage });
+      return res.sendError({ message: " Error occured",error: errorMessage },400);
     }
 
     console.error("Error creating applicant:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    return res.sendError({ message: "Internal server error" },500);
   }
 };
 
@@ -107,7 +106,7 @@ const downloadResume = async (req, res) => {
       },
     });
     if (!applicant) {
-      return res.status(404).send("CV not found");
+      return res.sendError({message: "resume not found"},404);
     }
     const cvFilePath = applicant.cv;
     console.log(cvFilePath);
@@ -128,11 +127,11 @@ const downloadResume = async (req, res) => {
       const fileStream = fs.createReadStream(cvFilePath);
       fileStream.pipe(res);
     } else {
-      res.status(404).send("CV file not found");
+      res.sendError({message: "resume not found"},404);
     }
   } catch (error) {
     console.error("Error downloading CV:", error);
-    res.status(500).send("Internal server error");
+    res.sendError({ message: "Internal server error", error: error},500);
   }
 };
 
@@ -184,10 +183,10 @@ const findAllApplications = async (req, res) => {
       data: all.rows,
     };
 
-    res.status(200).json(response);
+    res.sendSuccess({message: "Data retrieve successfully!", data: response},200);
   } catch (error) {
     console.error("Error:", error);
-    res.status(500).json({ message: "Internal Server Error" });
+    res.sendError({ message: "Internal Server Error", error: error },500);
   }
 };
 
@@ -201,17 +200,15 @@ const acceptApplication = async (req, res) => {
       },
     });
     if (!applicationAccept) {
-      return res
-        .status(404)
-        .json({ message: "No application exists against this token" });
+      return res.sendError({ message: "No application exists against this token" },404);
     }
     if (applicationAccept.status === "accepted") {
-      return res.status(409).json({ message: "Already accepted" });
+      return res.sendError({ message: "Already accepted" },409);
     }
     if (applicationAccept.status === "rejected") {
-      return res.status(404).json({
+      return res.sendError({
         message: "This application cannot be accepted as it is rejected",
-      });
+      },404);
     }
 
     // Update the status of the found application
@@ -225,12 +222,10 @@ const acceptApplication = async (req, res) => {
     );
 
     console.log(applicationAccept);
-    res
-      .status(200)
-      .json({ message: "Application has been accepted. Congratulations!" });
+    res.sendSuccess({ message: "Application has been accepted. Congratulations!", applicantId: applicationAccept.id },200);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal Server Error" });
+    res.sendError({ message: "Internal Server Error", error: error },500);
   }
 };
 
@@ -242,19 +237,15 @@ const rejectApplication = async (req, res) => {
     });
 
     if (!applicationRejected) {
-      return res
-        .status(404)
-        .json({ message: "No application exists against this token" });
+      return res.sendError({ message: "No application exists against this token" },404);
     }
 
     if (applicationRejected.status === "rejected") {
-      return res
-        .status(409)
-        .json({ message: "already rejected." });
+      return res.sendError({ message: "already rejected." },409);
     }
 
     if (applicationRejected.status === "accepted") {
-      return res.status(400).json({ message: "cannot reject the application because it is already accepted" });
+      return res.sendError({ message: "cannot reject the application because it is already accepted" },400);
     }
 
     if (applicationRejected.status === "pending") {
@@ -294,10 +285,10 @@ const rejectApplication = async (req, res) => {
   });
 
 
-    res.status(200).json({ message: "Application has been rejected." });
+    res.sendSuccess({ message: "Application has been rejected." },200);
   } catch (error) {
     console.log("error", error);
-    res.status(500).json({ message: "Internal Server Error" });
+    res.sendError({ message: "Internal Server Error", error:error },500);
   }
 };
 
