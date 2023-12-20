@@ -73,7 +73,7 @@ app.use(bodyParser.json());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(limiter);
-app.use(standardizeResponse);
+// app.use(standardizeResponse);
 
 // adding the routes
 const userRoutes = require("./Routes/userRoute");

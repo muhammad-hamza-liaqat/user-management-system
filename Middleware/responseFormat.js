@@ -1,22 +1,26 @@
-// responseMiddleware.js
-
-function standardizeResponse(req, res, next) {
-  res.apiSuccess = function(statusCode = 200, data, message = 'Success') {
-    res.status(statusCode).json({
-      status: statusCode,
-      message: message,
-      data: data,
+const apiResponseMiddleware = (req, res, next) => {
+    const successResponse = (data) => ({
+      success: true,
+      message: 'Request processed successfully',
+      data: data || null
     });
-  };
-
-  res.apiError = function(statusCode = 500, message = 'Internal Server Error') {
-    res.status(statusCode).json({
-      status: 'error',
-      message: message,
+  
+    // Error response object
+    const errorResponse = (message, statusCode = 500) => ({
+      success: false,
+      message: message || 'Internal Server Error',
+      statusCode
     });
+  
+    res.locals.successResponse = successResponse;
+    res.locals.errorResponse = errorResponse;
+  
+    res.sendSuccess = (data) => res.json(successResponse(data));
+  
+    res.sendError = (message, statusCode) => res.status(statusCode || 500).json(errorResponse(message, statusCode));
+  
+    next();
   };
-
-  next();
-}
-
-module.exports = standardizeResponse;
+  
+  module.exports = apiResponseMiddleware;
+  
