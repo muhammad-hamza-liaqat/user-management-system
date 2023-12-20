@@ -139,7 +139,7 @@ const findAllApplications = async (req, res) => {
   try {
     const { status, page, pageSize } = req.query;
     const pageSizeInt = parseInt(pageSize, 10) || 10;
-    const pageInt = parseInt(page, 10) || 1; // Ensure page is a valid number, default to 1 if not provided
+    const pageInt = parseInt(page, 10) || 1; 
 
     const whereClause = {};
     if (status) {
@@ -149,7 +149,7 @@ const findAllApplications = async (req, res) => {
     } else {
         // If no status filter provided, default to "pending" and "accepted"
         whereClause.status = {
-            [Op.or]: ["accepted", "pending", "rejected"],
+            [Op.or]: ["accepted", "pending"],
         };
     }
 
