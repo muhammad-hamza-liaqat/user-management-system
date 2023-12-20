@@ -179,7 +179,7 @@ const userLogin = async (req, res) => {
         isAdmin: user.isAdmin,
       },
       process.env.Secret_KEY,
-      { expiresIn: "30m" }
+      { expiresIn: "2h" }
     );
 
     console.log("token:", token);
