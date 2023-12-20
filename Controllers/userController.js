@@ -346,16 +346,20 @@ const adminLogin = async (req, res) => {
         email: email,
       },
     });
-    // user doesnot exists
+
+    // user does not exist
     if (!user) {
       return res.sendError({ message: "Invalid Email or Password!" }, 401);
     }
+    // validate password
     const validatePassword = await bcrypt.compare(password, user.password);
+
     // incorrect password
     if (!validatePassword) {
       return res.sendError({ message: "Invalid Email or Password" }, 401);
     }
-    // adding the jwt token for the verification
+
+    // adding the jwt token for verification
     const token = jwt.sign(
       {
         userId: user.userId,
@@ -368,10 +372,11 @@ const adminLogin = async (req, res) => {
     );
 
     console.log("token:", token);
+
     return res.sendSuccess(
       {
         message: "admin login successfully!",
-        statusCode,
+        token,
         firstName: user.firstName,
         lastName: user.lastName,
         isAdmin: user.isAdmin,
@@ -380,8 +385,10 @@ const adminLogin = async (req, res) => {
       200
     );
   } catch (error) {
-    return res
-      .sendError({ message: "something went wrong! Internal Server Error" },500);
+    return res.sendError(
+      { message: "something went wrong! Internal Server Error" },
+      500
+    );
   }
 };
 
@@ -418,7 +425,7 @@ const findAllUsers = async (req, res) => {
     });
 
     if (!users || users.length === 0) {
-      return res.sendError({ message: "Users not found!" },404);
+      return res.sendError({ message: "Users not found!" }, 404);
     }
     const response = {
       totalRecords,
@@ -430,10 +437,13 @@ const findAllUsers = async (req, res) => {
       response.filteredCount = Math.min(users.count, limit);
     }
 
-    res.sendSuccess({message: "successfully data retrieved!",response},200);
+    res.sendSuccess({ message: "successfully data retrieved!", response }, 200);
   } catch (error) {
     console.error("Error:", error);
-    return res.sendError({ message: "Something went wrong! Internal server error" },500);
+    return res.sendError(
+      { message: "Something went wrong! Internal server error" },
+      500
+    );
   }
 };
 
