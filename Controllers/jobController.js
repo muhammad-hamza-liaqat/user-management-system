@@ -18,6 +18,7 @@ const storage = multer.diskStorage({
     // Specify the destination folder where the uploaded files will be stored
     cb(null, "uploads/");
   },
+  // defining the name of the cv to be stored
   filename: function (req, file, cb) {
     // Customize the filename to include the email address with PDF extension
     const email = req.body.email || "default"; 
