@@ -14,7 +14,7 @@ const jwt = require("jsonwebtoken");
 const { Op } = require("sequelize");
 
 const getUser = async (req, res) => {
-  res.apiSuccess(200, "hello from add-user controller");
+  res.sendSuccess(200, "hello from add-user controller");
 };
 
 const createUser = async (req, res) => {
@@ -75,14 +75,14 @@ const createUser = async (req, res) => {
       text: "So delighted that you have sign-up to our website. Please cooperate with us for the sign in process",
       html: htmlContent,
     });
-    return res.status(201).sendSuccess({
+    return res.sendSuccess({
       message: "user created successfully!",
       statusCode: 201,
       firstName: newUser.firstName,
       lastName: newUser.lastName,
       isVerified: newUser.isVerified,
-
-    })
+      isAdmin: newUser.isAdmin,
+    });
     console.log("user Created Successfully!", newUser);
   } catch (error) {
     if (error.name === "SequelizeValidationError") {
@@ -90,10 +90,10 @@ const createUser = async (req, res) => {
         field: err.path,
         message: err.message,
       }));
-      return res.status(400).json({ errors: validationErrors });
+      return res.sendError({ errors: validationErrors }, 400);
     } else {
       console.error(error);
-      return res.status(500).json({ error: "Internal Server Error" });
+      return res.sendError({ error: "Internal Server Error" }, 500);
     }
   }
 };
@@ -121,7 +121,7 @@ const verifyUserToken = async (req, res) => {
     const user = await userModel.findOne({ where: { email: email } });
 
     if (!user) {
-      return res.status(400).json({ message: "Invalid email entered!" });
+      return res.sendError({ message: "Invalid email entered!" }, 400);
     }
 
     if (isValidToken({ createdAt: user.createdAt })) {
@@ -129,16 +129,23 @@ const verifyUserToken = async (req, res) => {
         user.rememberToken = null;
         user.isVerified = true;
         user.save();
-        return res.redirect("http://localhost:8080/user/create-password");
+        return res.sendSuccess(
+          {
+            message: "user Verified!",
+            firstName: user.firstName,
+            email: user.email,
+            isVerified: user.isVerified,
+          },
+          200
+        );
+        // return res.redirect("http://localhost:8080/user/create-password");
       }
     } else {
-      return res.status(401).json({ message: "token has expired" });
+      return res.sendError({ message: "token has expired" }, 401);
     }
-    return res.status(403).json({ message: "invalid token!" });
+    return res.sendError({ message: "invalid token!" }, 403);
   } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "something went wrong! internal server error" });
+    return res.sendError({ message: "Interval Server Error" }, 500);
   }
 };
 const loginPage = (req, res) => {
@@ -156,12 +163,12 @@ const userLogin = async (req, res) => {
     });
     // user doesnot exists
     if (!user) {
-      return res.status(401).json({ message: "Invalid Email or Password!" });
+      return res.sendError({ message: "Invalid Email or Password!" }, 401);
     }
     const validatePassword = await bcrypt.compare(password, user.password);
     // incorrect password
     if (!validatePassword) {
-      return res.status(401).json({ message: "Invalid Email or Password" });
+      return res.sendError({ message: "Invalid Email or Password" });
     }
     // adding the jwt token for the verification
     const token = jwt.sign(
@@ -176,11 +183,23 @@ const userLogin = async (req, res) => {
     );
 
     console.log("token:", token);
-    return res.status(200).json({ firstName: user.firstName,lastName: user.lastName, email: user.email, token: token, isAdmin: user.isAdmin, isVerified: user.isVerified });
+    return res.sendSuccess(
+      {
+        message: "User Login successfully",
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        token: token,
+        isAdmin: user.isAdmin,
+        isVerified: user.isVerified,
+      },
+      200
+    );
   } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "something went wrong! Internal Server Error" });
+    return res.sendError(
+      { message: "something went wrong! Internal Server Error" },
+      500
+    );
   }
 };
 
@@ -193,32 +212,47 @@ const createPassword = async (req, res) => {
     const user = await userModel.findOne({ where: { email: email } });
     if (!user) {
       console.log("this user does not exist in the records");
-      return res.status(404).json({ message: "user not found!" });
+      return res.sendError({ message: "user not found!" }, 400);
     }
     if (user.isVerified === false) {
       console.log("the user is not verified. please verify your account first");
-      return res.status(406).json({
-        message: "User is not Verified! Please verify your account first.",
-      });
+      return res.sendError(
+        {
+          message: "User is not Verified! Please verify your account first.",
+        },
+        406
+      );
     }
 
     console.log(password);
     if (password === null || password === "") {
       console.log("Password is null or empty. No need to update.");
-      return res
-        .status(400)
-        .json({ message: "Password cannot be null or empty." });
+      return res.sendError(
+        { message: "Password cannot be null or empty." },
+        400
+      );
     } else {
       const hashedPassword = await bcrypt.hash(password, 15);
       await user.update({ password: hashedPassword });
       console.log(hashedPassword);
-      return res.status(200).json({ message: "password created!" });
+      return res.sendSuccess(
+        {
+          message: "password created!",
+          email: user.email,
+          password: user.password,
+          isAdmin: user.isAdmin,
+        },
+        200
+      );
     }
   } catch (error) {
     console.log(error);
-    return res.status(500).json({
-      message: "Something went Wrong! Internal Server Error- createPassword",
-    });
+    return res.sendError(
+      {
+        message: "Something went Wrong! Internal Server Error- createPassword",
+      },
+      500
+    );
   }
 };
 
@@ -231,17 +265,20 @@ const forgotPassword = async (req, res) => {
   try {
     const user = await userModel.findOne({ where: { email: email } });
     if (!user) {
-      return res.status(400).json({ message: "record not found!" });
+      return res.sendError({ message: "record not found!" }, 400);
     }
-    if (!user.isVerified== true){
-      return res.status(403).json({message: 'Account Not Verified'});
+    if (!user.isVerified == true) {
+      return res.sendError({ message: "Account Not Verified" }, 403);
     }
 
     if (user.password === null || user.password == "") {
-      return res.status(400).json({
-        message:
-          "check your mail to set the password again- request hitted before",
-      });
+      return res.sendError(
+        {
+          message:
+            "check your mail to set the password again- request hitted before",
+        },
+        400
+      );
     }
     await user.update({ password: null });
     console.log("Mail sent to your email address. follow the instructions");
@@ -270,10 +307,10 @@ const forgotPassword = async (req, res) => {
       text: "Hello App Family, you have generated the request for the reset email password",
       html: resetContent,
     });
-    return res.status(201).json({ message: "email sent check the email" });
+    return res.sendSuccess({ message: "email sent check the email" }, 201);
   } catch (error) {
     console.log("error:", error);
-    return res.status(500).json({ message: "internal server error" });
+    return res.sendError({ message: "internal server error" }, 500);
   }
 };
 
@@ -287,16 +324,17 @@ const setPassword = async (req, res) => {
     const email = req.params.email;
     const user = await userModel.findOne({ where: { email: email } });
     if (!user) {
-      return res.status(400).json({ message: "user don't exist" });
+      return res.sendError({ message: "user don't exist" }, 400);
     }
     const hashedPassword = await bcrypt.hash(password, 10);
     await user.update({ password: hashedPassword });
-    return res
-      .status(201)
-      .json({ message: "user has successfully set the password" });
+    return res.sendSuccess(
+      { message: "user has successfully set the password" },
+      200
+    );
   } catch (error) {
     console.log("error:", error);
-    return res.status(500).json({ message: "internal server error" });
+    return res.sendError({ message: "internal server error" }, 500);
   }
 };
 
@@ -310,12 +348,12 @@ const adminLogin = async (req, res) => {
     });
     // user doesnot exists
     if (!user) {
-      return res.status(401).json({ message: "Invalid Email or Password!" });
+      return res.sendError({ message: "Invalid Email or Password!" }, 401);
     }
     const validatePassword = await bcrypt.compare(password, user.password);
     // incorrect password
     if (!validatePassword) {
-      return res.status(401).json({ message: "Invalid Email or Password" });
+      return res.sendError({ message: "Invalid Email or Password" }, 401);
     }
     // adding the jwt token for the verification
     const token = jwt.sign(
@@ -330,11 +368,20 @@ const adminLogin = async (req, res) => {
     );
 
     console.log("token:", token);
-    return res.status(200).json({ token });
+    return res.sendSuccess(
+      {
+        message: "admin login successfully!",
+        statusCode,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        isAdmin: user.isAdmin,
+        isVerified: user.isVerified,
+      },
+      200
+    );
   } catch (error) {
     return res
-      .status(500)
-      .json({ message: "something went wrong! Internal Server Error" });
+      .sendError({ message: "something went wrong! Internal Server Error" },500);
   }
 };
 
@@ -367,28 +414,26 @@ const findAllUsers = async (req, res) => {
       ],
       where: whereCondition,
       limit,
-      offset: (currentPage-1)*limit,
+      offset: (currentPage - 1) * limit,
     });
 
     if (!users || users.length === 0) {
-      return res.status(404).json({ message: "Users not found!" });
+      return res.sendError({ message: "Users not found!" },404);
     }
-    const response ={
+    const response = {
       totalRecords,
       currentPage,
       pageSize: limit,
       users: users.rows,
     };
-    if (searchTerm){
-      response.filteredCount = Math.min(users.count, limit)
+    if (searchTerm) {
+      response.filteredCount = Math.min(users.count, limit);
     }
 
-    res.json(response);
+    res.sendSuccess({message: "successfully data retrieved!",response},200);
   } catch (error) {
     console.error("Error:", error);
-    return res
-      .status(500)
-      .json({ message: "Something went wrong! Internal server error" });
+    return res.sendError({ message: "Something went wrong! Internal server error" },500);
   }
 };
 
