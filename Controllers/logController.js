@@ -12,14 +12,14 @@ const getLogs = async (req, res) => {
     const logs = await logModel.findAndCountAll({
       attributes: [
         "id",
-        "level",
-        "host",
-        "connection",
-        "statusCode",
-        "userAgent",
-        "accept",
-        "userName",
-        "createdAt",
+        // "level",
+        // "host",
+        // "connection",
+        // "statusCode",
+        // "userAgent",
+        // "accept",
+        // "userName",
+        // "createdAt",
       ],
       where: {
         level: "post",

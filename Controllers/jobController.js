@@ -137,57 +137,54 @@ const downloadResume = async (req, res) => {
 
 const findAllApplications = async (req, res) => {
   try {
-    
     const { status, page, pageSize } = req.query;
     const pageSizeInt = parseInt(pageSize, 10) || 10;
+    const pageInt = parseInt(page, 10) || 1; // Ensure page is a valid number, default to 1 if not provided
 
-    
     const whereClause = {};
     if (status) {
-      whereClause.status = {
-        [Op.in]: status.split(","), 
-      };
+        whereClause.status = {
+            [Op.in]: status.split(","),
+        };
     } else {
-      // If no status filter provided, default to "pending" and "accepted"
-      whereClause.status = {
-        [Op.or]: ["accepted", "pending", "rejected"],
-      };
+        // If no status filter provided, default to "pending" and "accepted"
+        whereClause.status = {
+            [Op.or]: ["accepted", "pending", "rejected"],
+        };
     }
 
-    
-    const offset = (page - 1) * pageSizeInt;
+    const offset = (pageInt - 1) * pageSizeInt;
     const limit = pageSizeInt;
 
-    
     const all = await jobModel.findAndCountAll({
-      attributes: [
-        "applicantId",
-        "userName",
-        "email",
-        "qualification",
-        "cnic",
-        "address",
-        "phoneNumber",
-        "status",
-      ],
-      where: whereClause,
-      offset,
-      limit,
+        attributes: [
+            "applicantId",
+            "userName",
+            "email",
+            "qualification",
+            "cnic",
+            "address",
+            "phoneNumber",
+            "status",
+        ],
+        where: whereClause,
+        offset,
+        limit,
     });
 
     const response = {
-      totalRecords: all.count,
-      totalPages: Math.ceil(all.count / pageSizeInt),
-      currentPage: page,
-      pageSize: pageSizeInt,
-      data: all.rows,
+        totalRecords: all.count,
+        totalPages: Math.ceil(all.count / pageSizeInt),
+        currentPage: pageInt,
+        pageSize: pageSizeInt,
+        data: all.rows,
     };
 
-    res.sendSuccess({message: "Data retrieve successfully!", data: response},200);
-  } catch (error) {
+    res.sendSuccess({ message: "Data retrieve successfully!", response }, 200);
+} catch (error) {
     console.error("Error:", error);
-    res.sendError({ message: "Internal Server Error", error: error },500);
-  }
+    res.sendError({ message: "Internal Server Error", error: error }, 500);
+}
 };
 
 
