@@ -24,13 +24,13 @@ http://192.168.11.179:8080/job/apply-job
 http://192.168.11.178:8080/user/admin-login
 
 http://192.168.11.178:8080/user/verify/:email/:rememberToken
-http://192.168.11.179:8080/job/apply-job
+http://192.168.11.179:8080/api/job/apply-job
 
 ![Alt text](chatMessage.png)
 ![Alt text](postMan.png)
 ![Alt text](rejectionImage.png)
 ![Alt text](socket.png)
-
+![Alt text](postmanScoket.png)
 <!-- pagination and filterations in http://192.168.11.179:8080/api/user/get-users -->
 page - for the number of pages
 pageSize - to show the number of records in a single page
