@@ -30,5 +30,13 @@ http://192.168.11.179:8080/job/apply-job
 ![Alt text](postMan.png)
 ![Alt text](rejectionImage.png)
 
+<!-- pagination and filterations in http://192.168.11.179:8080/api/user/get-users -->
+page - for the number of pages
+pageSize - to show the number of records in a single page
+searchTerm - for searching - firstName lastName email
 
-Email sent to h1@gmail.com
+<!-- pagination and filteration in http://192.168.11.179:8080/api/activity-logs -->
+page - for the number of pages
+pageSize - to show the number of records in  a single page
+search : null
+next page previous page added
