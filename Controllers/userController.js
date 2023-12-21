@@ -101,14 +101,16 @@ const createUser = async (req, res) => {
 
 // validator function to validate the token timestamp
 
-const isValidToken = (tokenObject) => {
-  const createdAt = new Date(tokenObject.createdAt);
-  const currentTime = new Date();
-  const elapsedMilliseconds = currentTime - createdAt;
-  const elapsedMinutes = elapsedMilliseconds / (1000 * 60);
-  return elapsedMinutes <= 30;
-  //   the token will expire in 30 minutes after the generation
+const isValidToken = (token) => {
+  const tokenCreationTime = token.createdAt; 
+
+  // Set the expiry duration to 30 minutes in milliseconds
+  const expiryDuration = 30 * 60 * 1000; // 30 minutes in milliseconds
+
+  // Check if the current time is within the expiry duration
+  return Date.now() - tokenCreationTime <= expiryDuration;
 };
+
 
 const createPasswordPage = (req, res) => {
   res.end("create password page");
@@ -162,14 +164,14 @@ const userLogin = async (req, res) => {
         email: email,
       },
     });
-    if (!email){
-      return res.sendError({message: "email is misssing"},400)
+    if (!email) {
+      return res.sendError({ message: "email is misssing" }, 400);
     }
-    if (!password){
-      return res.sendError({message: "email is misssing"},400)
+    if (!password) {
+      return res.sendError({ message: "email is misssing" }, 400);
     }
-    if(user.password == null|| user.password == ""){
-      return res.sendError({message: "account not verified"},400)
+    if (user.password == null || user.password == "") {
+      return res.sendError({ message: "account not verified" }, 400);
     }
     if (!user) {
       return res.sendError({ message: "Invalid Email or Password!" }, 401);
@@ -213,42 +215,58 @@ const userLogin = async (req, res) => {
 };
 
 const createPassword = async (req, res) => {
-  const { email, token } = req.params;
+  const email = req.params.email;
+  const token = req.params.token;
 
   const password = req.body.password;
   const confirmPassword = req.body.confirmPassword;
 
   try {
-    const user = await userModel.findOne({ where: { email: email, password: null, isVerified: false } });
-    if (!email){
-      return res.sendError({message: "email required"},400);
+    // console.log(email);
+    // console.log(token);
+    if (!email) {
+      return res.sendError({ message: "email required" }, 400);
     }
+    if (!token) {
+      return res.sendError({ message: "token not attached" }, 400);
+    }
+    const user = await userModel.findOne({ where: { email: email } });
+    console.log(user);
+
     if (!user) {
       console.log("this user does not exist in the records");
       return res.sendError({ message: "user not found!" }, 400);
     }
-    if (!password){
-      return res.sendError({message: "password is missing"},400);
+    if (user.rememberToken !== req.params.token) {
+      return res.sendError({ message: "token is invalid" });
     }
-    if (!confirmPassword){
-      return res.sendError({message: "confirmPassword is missing"},400)
+    // if (!isValidToken(user.rememberToken)) {
+    //   return res.sendError({ message: "token expired" });
+    // }
+    if (!password) {
+      return res.sendError({ message: "password is missing" }, 400);
     }
-    if (password !== confirmPassword){
-      return res.sendError({message: "password does not match"},400)
+    if (!confirmPassword) {
+      return res.sendError({ message: "confirmPassword is missing" }, 400);
+    }
+    if (password !== confirmPassword) {
+      return res.sendError({ message: "password does not match" }, 400);
     }
 
-    if (password == confirmPassword){
+    if (password == confirmPassword) {
       // hashing the password
-      const hashedPassword = await bcrypt.hash(password,15);
+      const hashedPassword = await bcrypt.hash(password, 15);
       console.log(hashedPassword);
-      if (hashedPassword){
+      if (hashedPassword) {
         user.rememberToken = null;
-        await user.update({password: hashedPassword, rememberToken: null, isVerified: true})
+        await user.update({
+          password: hashedPassword,
+          rememberToken: null,
+          isVerified: true,
+        });
       }
-      return res.sendSuccess({message: "Password set and account Verified"})
+      return res.sendSuccess({ message: "Password set and account Verified" });
     }
-
-    
   } catch (error) {
     console.log(error);
     return res.sendError(
