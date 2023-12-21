@@ -3,7 +3,7 @@ const axios = require("axios");
 const sendMessage = async (req, res) => {
   try {
     const openaiEndpoint = "https://api.openai.com/v1/chat/completions";
-    const openaiApiKey = "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";
+    const openaiApiKey = process.env.chatghtAPI;
     const response = await axios.post(
       openaiEndpoint,
       {
@@ -13,7 +13,7 @@ const sendMessage = async (req, res) => {
       {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${openaiApiKey}`,
+          Authorization: `Bearer ${process.env.chatghtAPI}`,
         },
       }
     );
