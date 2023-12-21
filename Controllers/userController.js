@@ -50,7 +50,7 @@ const createUser = async (req, res) => {
     );
 
     // const verificationLink = `http://localhost:8080/#/UserDashboard/ConfirmPass/${email}`;
-    const verificationLink = `http://localhost:8080/api/create-password/${email}/${rememberTokenForUser.token}`;
+    const verificationLink = `http://localhost:8080/api/user/create-password/${email}/${rememberTokenForUser.token}`;
     const htmlContent = `<html>
       <head>
         <title>Email Verification</title>
@@ -316,7 +316,7 @@ const forgotPassword = async (req, res) => {
         <div style="background-color: #f2f2f2; padding: 20px; border-radius: 10px;">
           <h2 style="color: #333;">Email Verification</h2>
           <p>To Reset the Password, click on the link below:</p>
-          <a href="http://localhost:8080/api/create-password/${email}" target="_blank" style="text-decoration: none;">
+          <a href="http://localhost:8080/api/user/set-password/${email}" target="_blank" style="text-decoration: none;">
             <button style="background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
               Reset Password
             </button>
