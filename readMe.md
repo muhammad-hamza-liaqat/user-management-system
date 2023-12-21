@@ -29,6 +29,7 @@ http://192.168.11.179:8080/job/apply-job
 ![Alt text](chatMessage.png)
 ![Alt text](postMan.png)
 ![Alt text](rejectionImage.png)
+![Alt text](socket.png)
 
 <!-- pagination and filterations in http://192.168.11.179:8080/api/user/get-users -->
 page - for the number of pages
