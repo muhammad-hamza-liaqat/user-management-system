@@ -102,10 +102,15 @@ const createUser = async (req, res) => {
 // validator function to validate the token timestamp
 
 const isValidToken = (token) => {
-  const tokenCreationTime = token.createdAt;
+  if (!token || !token.createdAt) {
+    return false;
+  }
+
+  // Assuming token.createdAt is a Date object
+  const tokenCreationTime = token.createdAt.toLocaleTimeString();
 
   // Set the expiry duration to 30 minutes in milliseconds
-  const expiryDuration = 1 * 60 * 1000; // 30 minutes in milliseconds
+  const expiryDuration = 30 * 60 * 1000; // 30 minutes in milliseconds
 
   // Check if the current time is within the expiry duration
   return Date.now() - tokenCreationTime <= expiryDuration;
@@ -232,7 +237,7 @@ const createPassword = async (req, res) => {
     const user = await userModel.findOne({
       where: { email: email, rememberToken: token },
     });
-    console.log(user);
+    console.log(user.createdAt);
 
     if (!user) {
       console.log("this user does not exist in the records");
@@ -241,10 +246,9 @@ const createPassword = async (req, res) => {
     if (user.rememberToken !== token) {
       return res.sendError({ message: "token is invalid" });
     }
-    if (!isValidToken(user.rememberToken)){
-      return res.sendError({message: "token expired"},401)
-    }
-
+    // if (!isValidToken(user.rememberToken)){
+    //   return res.sendError({message: "token expired"},401)
+    // }
     if (!password) {
       return res.sendError({ message: "password is missing" }, 400);
     }
