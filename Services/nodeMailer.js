@@ -12,15 +12,15 @@ const emailQueue = new Queue("email", {
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: "mh408800@gmail.com",
-    pass: "fqplkcnwytbhzjjc",
+    user: process.env.user_email,
+    pass: process.env.email_password,
   },
 });
 
 emailQueue.process(async (job) => {
   const { to, subject, text,html } = job.data;
   const mainOptions = {
-    from: "mh408800@gmail.com",
+    from: process.env.user_email,
     to,
     subject,
     text,

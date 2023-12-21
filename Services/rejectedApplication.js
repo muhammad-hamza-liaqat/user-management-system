@@ -20,7 +20,7 @@ const transporter = nodemailer.createTransport({
 rejectedApplication.process(async (job) => {
   const { to, subject, text,html } = job.data;
   const mainOptions = {
-    from: "mh408800@gmail.com",
+    from: process.env.user_email,
     to,
     subject,
     text,
