@@ -65,10 +65,15 @@ const submitForm = async (req, res) => {
       !qualification ||
       !cnic ||
       !address ||
-      !phoneNumber 
-      ||
+      !phoneNumber ||
       !cvPath
     ) {
+      const pdfPath = `/home/hamza/Desktop/final_project/uploads/${email}.pdf`;
+      // Check if the CV file exists before attempting to delete
+      if (fs.existsSync(pdfPath)) {
+        fs.unlinkSync(pdfPath);
+      }
+
       return res.status(400).json({ message: "all fields are required" });
     }
     const newApplicant = await jobModel.create({
