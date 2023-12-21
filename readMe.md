@@ -40,3 +40,10 @@ page - for the number of pages
 pageSize - to show the number of records in  a single page
 search : null
 next page previous page added
+
+
+<!-- http://localhost:8080/api/job/get-applications -->
+page - for the number of pages
+pageSize - to show the number of records in a single page
+status for status such as rejected accepted pending - enum values
+search in userName and email

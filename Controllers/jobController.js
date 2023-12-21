@@ -159,10 +159,10 @@ const downloadResume = async (req, res) => {
 const findAllApplications = async (req, res) => {
   try {
     const page = parseInt(req.query.page, 10) || 1;
-    const limit = parseInt(req.query.limit, 10) || 10;
+    const pageSize = parseInt(req.query.pageSize, 10) || 10;
     const search = req.query.search || "";
     const status = req.query.status || "";
-    const offset = (page - 1) * limit;
+    const offset = (page - 1) * pageSize;
 
     // Specify the attributes you want to retrieve
     const attributesToRetrieve = [
@@ -192,19 +192,17 @@ const findAllApplications = async (req, res) => {
     };
 
     const applicants = await jobModel.findAndCountAll({
-      attributes: attributesToRetrieve, 
+      attributes: attributesToRetrieve,
       where: whereClause,
       offset,
-      limit,
+      limit: pageSize, 
     });
 
     if (!applicants) {
       return res.sendError({ message: "No applicant found!" }, 400);
     }
 
-    const totalPages = Math.ceil(applicants.count / limit);
-    const hasNextPage = page < totalPages;
-    const hasPrevPage = page > 1;
+    const totalPages = Math.ceil(applicants.count / pageSize);
     const pagination = {
       totalApplicants: applicants.count,
       currentPage: page,
