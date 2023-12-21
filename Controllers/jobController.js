@@ -163,6 +163,18 @@ const findAllApplications = async (req, res) => {
     const search = req.query.search || "";
     const status = req.query.status || "";
     const offset = (page - 1) * limit;
+
+    // Specify the attributes you want to retrieve
+    const attributesToRetrieve = [
+      "userName",
+      "email",
+      "cnic",
+      "cv",
+      "status",
+      "createdAt"
+    ];
+
+    // Adjust the status conditions as needed
     const whereClause = {
       [Op.and]: [
         {
@@ -171,47 +183,38 @@ const findAllApplications = async (req, res) => {
             { email: { [Op.like]: `%${search}%` } },
           ],
         },
-        { status: { [Op.like]: `%${status}%` } },
-        // { isDelete: { [Op.ne]: true } },
+        {
+          status: {
+            [Op.or]: status ? { [Op.eq]: status } : { [Op.in]: ['accepted', 'pending', 'rejected'] },
+          },
+        },
       ],
     };
+
     const applicants = await jobModel.findAndCountAll({
+      attributes: attributesToRetrieve, 
       where: whereClause,
       offset,
       limit,
     });
 
     if (!applicants) {
-      return res.sendError({ message: "no applicant found!" }, 400);
+      return res.sendError({ message: "No applicant found!" }, 400);
     }
+
     const totalPages = Math.ceil(applicants.count / limit);
     const hasNextPage = page < totalPages;
     const hasPrevPage = page > 1;
-    const nextLink = hasNextPage
-      ? `/job/get-job-applications?page=${
-          page + 1
-        }&limit=${limit}&search=${search}&status=${status}`
-      : null;
-    const prevLink = hasPrevPage
-      ? `/api/get-applicants?page=${
-          page - 1
-        }&limit=${limit}&search=${search}&status=${status}`
-      : null;
-
+    const pagination = {
+      totalApplicants: applicants.count,
+      currentPage: page,
+      totalPages: totalPages,
+    };
     res.sendSuccess(
       {
-        status: "success",
-        message: "data feteched successfully!",
+        message: "Data fetched successfully!",
         data: applicants.rows,
-        pagination: {
-          totalApplicants: applicants.count,
-          page,
-          totalPages,
-          hasNextPage,
-          hasPrevPage,
-          nextLink,
-          prevLink,
-        },
+        pagination: pagination,
       },
       200
     );
@@ -224,7 +227,6 @@ const findAllApplications = async (req, res) => {
     );
   }
 };
-
 const acceptApplication = async (req, res) => {
   const id = req.params.id;
   try {
