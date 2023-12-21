@@ -46,4 +46,4 @@ next page previous page added
 page - for the number of pages
 pageSize - to show the number of records in a single page
 status for status such as rejected accepted pending - enum values
-search in userName and email
+search in userName and email and applicantID as well

@@ -181,6 +181,7 @@ const findAllApplications = async (req, res) => {
           [Op.or]: [
             { userName: { [Op.like]: `%${search}%` } },
             { email: { [Op.like]: `%${search}%` } },
+            { applicantId: { [Op.like]: `%${search}%` } },
           ],
         },
         {
