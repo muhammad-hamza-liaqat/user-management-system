@@ -50,7 +50,7 @@ const createUser = async (req, res) => {
     );
 
     // const verificationLink = `http://localhost:8080/#/UserDashboard/ConfirmPass/${email}`;
-    const verificationLink = `http://localhost:8080/user/create-password/${email}`;
+    const verificationLink = `http://localhost:8080/user/create-password/${email}/${rememberTokenForUser.token}`;
     const htmlContent = `<html>
       <head>
         <title>Email Verification</title>
@@ -102,7 +102,7 @@ const createUser = async (req, res) => {
 // validator function to validate the token timestamp
 
 const isValidToken = (token) => {
-  const tokenCreationTime = token.createdAt; 
+  const tokenCreationTime = token.createdAt;
 
   // Set the expiry duration to 30 minutes in milliseconds
   const expiryDuration = 30 * 60 * 1000; // 30 minutes in milliseconds
@@ -110,7 +110,6 @@ const isValidToken = (token) => {
   // Check if the current time is within the expiry duration
   return Date.now() - tokenCreationTime <= expiryDuration;
 };
-
 
 const createPasswordPage = (req, res) => {
   res.end("create password page");
@@ -230,14 +229,16 @@ const createPassword = async (req, res) => {
     if (!token) {
       return res.sendError({ message: "token not attached" }, 400);
     }
-    const user = await userModel.findOne({ where: { email: email } });
+    const user = await userModel.findOne({
+      where: { email: email, rememberToken: token },
+    });
     console.log(user);
 
     if (!user) {
       console.log("this user does not exist in the records");
       return res.sendError({ message: "user not found!" }, 400);
     }
-    if (user.rememberToken !== req.params.token) {
+    if (user.rememberToken !== token) {
       return res.sendError({ message: "token is invalid" });
     }
     // if (!isValidToken(user.rememberToken)) {
