@@ -285,10 +285,13 @@ const forgotPasswordPage = (req, res) => {
 
 const forgotPassword = async (req, res) => {
   const { email } = req.body;
+  // console.log(email);
+  // console.log(req.body);
   try {
     const user = await userModel.findOne({ where: { email: email } });
+    // console.log("user:",user )
     if (!user) {
-      return res.sendError({ message: "record not found!" }, 400);
+      return res.sendError({ message: "user not found!" }, 400);
     }
     if (!user.isVerified == true) {
       return res.sendError({ message: "Account Not Verified" }, 403);
@@ -303,7 +306,7 @@ const forgotPassword = async (req, res) => {
         400
       );
     }
-    const newToken = uuidv4()
+    const newToken = uuidv4();
     await user.update({ password: null, rememberToken: newToken });
     console.log("Mail sent to your email address. follow the instructions");
     const resetContent = `
@@ -316,7 +319,7 @@ const forgotPassword = async (req, res) => {
         <div style="background-color: #f2f2f2; padding: 20px; border-radius: 10px;">
           <h2 style="color: #333;">Email Verification</h2>
           <p>To Reset the Password, click on the link below:</p>
-          <a href="http://localhost:8080/api/user/set-password/${email}" target="_blank" style="text-decoration: none;">
+          <a href="http://localhost:8080/api/user/set-password/${email}/${newToken}" target="_blank" style="text-decoration: none;">
             <button style="background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
               Reset Password
             </button>
@@ -346,19 +349,32 @@ const setPassword = async (req, res) => {
   try {
     const { password } = req.body;
     const email = req.params.email;
+    const newToken = req.params.newToken;
+
     const user = await userModel.findOne({ where: { email: email } });
+
     if (!user) {
-      return res.sendError({ message: "user don't exist" }, 400);
+      return res.sendError({ message: "User doesn't exist" }, 400);
     }
+    // console.log(user.rememberToken);
+    // console.log(req.params.newToken);
+
+    if (user.rememberToken !== req.params.newToken) {
+      return res.sendError({ message: "Invalid token" }, 400);
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
-    await user.update({ password: hashedPassword });
+
+    // Update user record with new password and set rememberToken to null
+    await user.update({ password: hashedPassword, rememberToken: null });
+
     return res.sendSuccess(
-      { message: "user has successfully set the password" },
+      { message: "User has successfully set the password" },
       200
     );
   } catch (error) {
-    console.log("error:", error);
-    return res.sendError({ message: "internal server error" }, 500);
+    console.error("Error:", error);
+    return res.sendError({ message: "Internal server error" }, 500);
   }
 };
 
