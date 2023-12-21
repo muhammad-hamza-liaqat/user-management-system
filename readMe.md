@@ -19,8 +19,12 @@ projectFinal
 
 http://192.168.11.179:8080/user/verify-user
 http://192.168.11.179:8080/user/login-user
+http://192.168.11.179:8080/user/create-user
 http://192.168.11.179:8080/job/apply-job
 http://192.168.11.178:8080/user/admin-login
+
+http://192.168.11.178:8080/user/verify/:email/:rememberToken
+
 
 ![Alt text](chatMessage.png)
 ![Alt text](postMan.png)

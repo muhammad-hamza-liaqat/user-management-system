@@ -152,53 +152,70 @@ const downloadResume = async (req, res) => {
 
 const findAllApplications = async (req, res) => {
   try {
-    const { status, page, pageSize } = req.query;
-    const pageSizeInt = parseInt(pageSize, 10) || 10;
-    const pageInt = parseInt(page, 10) || 1;
-
-    const whereClause = {};
-    if (status) {
-      whereClause.status = {
-        [Op.in]: status.split(","),
-      };
-    } else {
-      // If no status filter provided, default to "pending" and "accepted"
-      whereClause.status = {
-        [Op.or]: ["accepted", "pending"],
-      };
-    }
-
-    const offset = (pageInt - 1) * pageSizeInt;
-    const limit = pageSizeInt;
-
-    const all = await jobModel.findAndCountAll({
-      attributes: [
-        "applicantId",
-        "userName",
-        "email",
-        "qualification",
-        "cnic",
-        "address",
-        "phoneNumber",
-        "status",
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 10;
+    const search = req.query.search || "";
+    const status = req.query.status || "";
+    const offset = (page - 1) * limit;
+    const whereClause = {
+      [Op.and]: [
+        {
+          [Op.or]: [
+            { userName: { [Op.like]: `%${search}%` } },
+            { email: { [Op.like]: `%${search}%` } },
+          ],
+        },
+        { status: { [Op.like]: `%${status}%` } },
+        // { isDelete: { [Op.ne]: true } },
       ],
+    };
+    const applicants = await jobModel.findAndCountAll({
       where: whereClause,
       offset,
       limit,
     });
 
-    const response = {
-      totalRecords: all.count,
-      totalPages: Math.ceil(all.count / pageSizeInt),
-      currentPage: pageInt,
-      pageSize: pageSizeInt,
-      data: all.rows,
-    };
+    if (!applicants) {
+      return res.sendError({ message: "no applicant found!" }, 400);
+    }
+    const totalPages = Math.ceil(applicants.count / limit);
+    const hasNextPage = page < totalPages;
+    const hasPrevPage = page > 1;
+    const nextLink = hasNextPage
+      ? `/job/get-job-applications?page=${
+          page + 1
+        }&limit=${limit}&search=${search}&status=${status}`
+      : null;
+    const prevLink = hasPrevPage
+      ? `/api/get-applicants?page=${
+          page - 1
+        }&limit=${limit}&search=${search}&status=${status}`
+      : null;
 
-    res.sendSuccess({ message: "Data retrieve successfully!", response }, 200);
+    res.sendSuccess(
+      {
+        status: "success",
+        message: "data feteched successfully!",
+        data: applicants.rows,
+        pagination: {
+          totalApplicants: applicants.count,
+          page,
+          totalPages,
+          hasNextPage,
+          hasPrevPage,
+          nextLink,
+          prevLink,
+        },
+      },
+      200
+    );
   } catch (error) {
-    console.error("Error:", error);
-    res.sendError({ message: "Internal Server Error", error: error }, 500);
+    res.sendError(
+      {
+        message: error.message,
+      },
+      400
+    );
   }
 };
 

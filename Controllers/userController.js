@@ -49,7 +49,8 @@ const createUser = async (req, res) => {
       }
     );
 
-    const verificationLink = `http://localhost:8080/user/verify/${email}/${rememberTokenForUser.token}`;
+    // const verificationLink = `http://localhost:8080/#/UserDashboard/ConfirmPass/${email}`;
+    const verificationLink = `http://localhost:8080/user/create-password/${email}`;
     const htmlContent = `<html>
       <head>
         <title>Email Verification</title>
@@ -161,7 +162,15 @@ const userLogin = async (req, res) => {
         email: email,
       },
     });
-    // user doesnot exists
+    if (!email){
+      return res.sendError({message: "email is misssing"},400)
+    }
+    if (!password){
+      return res.sendError({message: "email is misssing"},400)
+    }
+    if(user.password == null){
+      return res.sendError({message: "account not verified"},400)
+    }
     if (!user) {
       return res.sendError({ message: "Invalid Email or Password!" }, 401);
     }
@@ -211,48 +220,34 @@ const createPassword = async (req, res) => {
 
   try {
     const user = await userModel.findOne({ where: { email: email } });
+    if (!email){
+      return res.sendError({message: "email required"},400);
+    }
     if (!user) {
       console.log("this user does not exist in the records");
       return res.sendError({ message: "user not found!" }, 400);
     }
-    if (user.isVerified === false) {
-      console.log("the user is not verified. please verify your account first");
-      return res.sendError(
-        {
-          message: "User is not Verified! Please verify your account first.",
-        },
-        406
-      );
+    if (!password){
+      return res.sendError({message: "password is missing"},400);
     }
-    if (!confirmPassword) {
-      return res.sendError({ message: "confirmPassword field required" }, 400);
+    if (!confirmPassword){
+      return res.sendError({message: "confirmPassword is missing"},400)
     }
-
-    if (password !== confirmPassword) {
-      return res.sendError({ message: "password does not matches" }, 400);
+    if (password !== confirmPassword){
+      return res.sendError({message: "password does not match"},400)
     }
-
-    console.log(password);
-    if (password === null || password === "") {
-      console.log("Password is null or empty. No need to update.");
-      return res.sendError(
-        { message: "Password cannot be null or empty." },
-        400
-      );
-    } else {
-      const hashedPassword = await bcrypt.hash(password, 15);
-      await user.update({ password: hashedPassword });
+    if (password == confirmPassword){
+      // hashing the password
+      const hashedPassword = await bcrypt.hash(password,15);
       console.log(hashedPassword);
-      return res.sendSuccess(
-        {
-          message: "password created!",
-          email: user.email,
-          password: user.password,
-          isAdmin: user.isAdmin,
-        },
-        200
-      );
+      if (hashedPassword){
+        user.rememberToken = null;
+        await user.update({password: hashedPassword, rememberToken: null, isVerified: true})
+      }
+      return res.sendSuccess({message: "Password set and account Verified"})
     }
+
+    
   } catch (error) {
     console.log(error);
     return res.sendError(

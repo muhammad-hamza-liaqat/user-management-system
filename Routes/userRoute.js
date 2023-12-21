@@ -9,9 +9,9 @@ const logUserActivity = require("../Middleware/activityMiddle")
 
 
 
-userRoutes.route("/create-user").get(getUser).post(logUserActivity,adminCheckJWT,createUser);
-userRoutes.route("/verify/:email/:rememberToken").get(verifyUserToken);
-userRoutes.route("/login-user").get(loginPage).post(isthisUser,logUserActivity,userLogin); 
+userRoutes.route("/create-user").get(getUser).post(logUserActivity,createUser);
+// userRoutes.route("/verify/:email/:rememberToken").get(verifyUserToken);
+userRoutes.route("/login-user").get(loginPage).post(logUserActivity,userLogin);  // isthisUser middleware attach here
 userRoutes.route("/create-password/:email").get(createPasswordPage).patch(logUserActivity,createPassword);
 userRoutes.route("/forgot-password").get(forgotPasswordPage).post(logUserActivity,forgotPassword);
 userRoutes.route("/set-password/:email").get(setPasswordPage).patch(logUserActivity,setPassword);
