@@ -24,7 +24,7 @@ http://192.168.11.179:8080/job/apply-job
 http://192.168.11.178:8080/user/admin-login
 
 http://192.168.11.178:8080/user/verify/:email/:rememberToken
-
+http://192.168.11.179:8080/job/apply-job
 
 ![Alt text](chatMessage.png)
 ![Alt text](postMan.png)

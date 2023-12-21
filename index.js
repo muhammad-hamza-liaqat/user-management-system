@@ -85,10 +85,10 @@ const logRoutes = require("./Routes/logRoute");
 const sendMessage = require("./Socket.io/chatGPTModel");
 const chatModel = require("./Models/chatModel");
 
-app.use("/user", userRoutes);
-app.use("/job", jobRoutes);
-app.use("/chat", socketRoutes);
-app.use("/admin", logRoutes);
+app.use("/api", userRoutes);
+app.use("/api", jobRoutes);
+app.use("/api", socketRoutes);
+app.use("/api", logRoutes);
 
 // middleware for 404 error page
 app.use(function (req, res, next) {

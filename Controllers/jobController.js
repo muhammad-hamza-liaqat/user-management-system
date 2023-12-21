@@ -65,7 +65,8 @@ const submitForm = async (req, res) => {
       !qualification ||
       !cnic ||
       !address ||
-      !phoneNumber ||
+      !phoneNumber 
+      ||
       !cvPath
     ) {
       return res.status(400).json({ message: "all fields are required" });
