@@ -168,7 +168,7 @@ const userLogin = async (req, res) => {
     if (!password){
       return res.sendError({message: "email is misssing"},400)
     }
-    if(user.password == null){
+    if(user.password == null|| user.password == ""){
       return res.sendError({message: "account not verified"},400)
     }
     if (!user) {
@@ -213,13 +213,13 @@ const userLogin = async (req, res) => {
 };
 
 const createPassword = async (req, res) => {
-  const { email } = req.params;
+  const { email, token } = req.params;
 
   const password = req.body.password;
   const confirmPassword = req.body.confirmPassword;
 
   try {
-    const user = await userModel.findOne({ where: { email: email } });
+    const user = await userModel.findOne({ where: { email: email, password: null, isVerified: false } });
     if (!email){
       return res.sendError({message: "email required"},400);
     }
@@ -236,6 +236,7 @@ const createPassword = async (req, res) => {
     if (password !== confirmPassword){
       return res.sendError({message: "password does not match"},400)
     }
+
     if (password == confirmPassword){
       // hashing the password
       const hashedPassword = await bcrypt.hash(password,15);
