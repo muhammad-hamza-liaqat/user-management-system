@@ -18,4 +18,5 @@ userRoutes.route("/set-password/:email/:newToken").get(setPasswordPage).patch(lo
 // userRoutes.route("/login-admin").post(isthisAdmin,adminLogin); 
 userRoutes.route("/get-users").get(checkJWT,findAllUsers); // user jwt check
 
+
 module.exports = userRoutes;
