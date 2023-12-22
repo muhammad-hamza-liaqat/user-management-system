@@ -1,5 +1,6 @@
 const User = require("../Models/userModel");
 const ActivityLog = require("../Models/activityModel");
+const jwt = require("jsonwebtoken")
 
 const logUserActivity = async (req, res, next) => {
   try {
@@ -68,7 +69,9 @@ const logUserActivity = async (req, res, next) => {
       }
     } else if (req.path.startsWith("/change-password") && req.method === "POST") {
       // For change password
-      const email = req.user.email;
+      const token = req.headers.authorization.split(' ')[1];
+      const decode = jwt.verify(token, process.env.Secret_KEY);
+      const email= decode.email;
       const user = await User.findOne({ where: { email } });
       if (user) {
         const { firstName, lastName } = user;
