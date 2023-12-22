@@ -101,6 +101,7 @@ app.set("views", "./Views");
 
 io.on("connection", (socket) => {
   console.log("A user connected");
+  socket.emit("chat message", "Hello, how may i help you?")
   let user = "user";
   socket.on("chat message", async (msg) => {
     console.log("message received from client: " + msg);
