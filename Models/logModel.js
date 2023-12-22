@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../Database/connection");
 
-const LogModel = sequelize.define("logs", {
+const LogModel = sequelize.define("mylogs", {
     timestamp: {
       type: DataTypes.DATE,
       defaultValue: sequelize.literal("CURRENT_TIMESTAMP"),

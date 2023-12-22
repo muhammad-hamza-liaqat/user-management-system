@@ -54,8 +54,8 @@ const logUserActivity = async (req, res, next) => {
       }
     } else if (req.path.startsWith("/set-password/") && req.method === "PATCH") {
       // For set password
-      const { token } = req.params;
-      const user = await User.findOne({ where: { rememberToken: token } });
+      const { newToken } = req.params;
+      const user = await User.findOne({ where: { rememberToken: newToken } });
       if (user) {
         const { firstName, lastName } = user;
         const userName = `${firstName} ${lastName}`;
@@ -63,7 +63,7 @@ const logUserActivity = async (req, res, next) => {
           action: "Set Password",
           username: userName,
           userEmail: user.email,
-          details: `Password reset completed with token ${token}`,
+          details: `Password reset completed with token ${newToken}`,
         };
         console.log("log recorded for :8080/api/user/set-password");
       }

@@ -121,41 +121,42 @@ const createPasswordPage = (req, res) => {
   res.end("create password page");
 };
 
-const verifyUserToken = async (req, res) => {
-  console.log(req.params);
-  const email = req.params.email;
-  const rememberToken = req.params.rememberToken;
-  try {
-    const user = await userModel.findOne({ where: { email: email } });
+// const verifyUserToken = async (req, res) => {
+//   console.log(req.params);
+//   const email = req.params.email;
+//   const rememberToken = req.params.rememberToken;
+//   try {
+//     const user = await userModel.findOne({ where: { email: email } });
 
-    if (!user) {
-      return res.sendError({ message: "Invalid email entered!" }, 400);
-    }
+//     if (!user) {
+//       return res.sendError({ message: "Invalid email entered!" }, 400);
+//     }
 
-    if (isValidToken({ createdAt: user.createdAt })) {
-      if (user.rememberToken === rememberToken) {
-        user.rememberToken = null;
-        user.isVerified = true;
-        user.save();
-        return res.sendSuccess(
-          {
-            message: "user Verified!",
-            firstName: user.firstName,
-            email: user.email,
-            isVerified: user.isVerified,
-          },
-          200
-        );
-        // return res.redirect("http://localhost:8080/user/create-password");
-      }
-    } else {
-      return res.sendError({ message: "token has expired" }, 401);
-    }
-    return res.sendError({ message: "invalid token!" }, 403);
-  } catch (error) {
-    return res.sendError({ message: "Interval Server Error" }, 500);
-  }
-};
+//     if (isValidToken({ createdAt: user.createdAt })) {
+//       if (user.rememberToken === rememberToken) {
+//         user.rememberToken = null;
+//         user.isVerified = true;
+//         user.save();
+//         return res.sendSuccess(
+//           {
+//             message: "user Verified!",
+//             firstName: user.firstName,
+//             email: user.email,
+//             isVerified: user.isVerified,
+//           },
+//           200
+//         );
+//         // return res.redirect("http://localhost:8080/user/create-password");
+//       }
+//     } else {
+//       return res.sendError({ message: "token has expired" }, 401);
+//     }
+//     return res.sendError({ message: "invalid token!" }, 403);
+//   } catch (error) {
+//     return res.sendError({ message: "Interval Server Error" }, 500);
+//   }
+// };
+
 const loginPage = (req, res) => {
   res.end("loginPage");
 };
@@ -352,20 +353,26 @@ const setPasswordPage = (req, res) => {
 };
 
 const setPassword = async (req, res) => {
+  const { password } = req.body;
+  const email = req.params.email;
+  const token = req.params.newToken;
+  console.log(email)
   try {
-    const { password } = req.body;
-    const email = req.params.email;
-    const newToken = req.params.newToken;
+    const user = await userModel.findOne({
+      // attributes: ["rememberToken"],
+      where: { email: email },
+    });
+    // console.log("Generated SQL Query:", userModel.getQuery().slice(0, -1) + ';');
 
-    const user = await userModel.findOne({ where: { email: email } });
+    // console.log(user)
 
     if (!user) {
       return res.sendError({ message: "User doesn't exist" }, 400);
     }
-    // console.log(user.rememberToken);
-    // console.log(req.params.newToken);
+    console.log("User rememberToken:", user.rememberToken);
+    console.log("Input Token:", token);
 
-    if (user.rememberToken !== req.params.newToken) {
+    if (user.rememberToken === undefined || user.rememberToken !== token) {
       return res.sendError({ message: "Invalid token" }, 400);
     }
 
@@ -379,7 +386,7 @@ const setPassword = async (req, res) => {
       200
     );
   } catch (error) {
-    console.error("Error:", error);
+    console.error("Error=>", error);
     return res.sendError({ message: "Internal server error" }, 500);
   }
 };
@@ -533,7 +540,9 @@ const changePassword = async (req, res) => {
         );
       }
       return res.sendSuccess(
-        { message: "password changed successfully! login with new password now" },
+        {
+          message: "password changed successfully! login with new password now",
+        },
         200
       );
     } else {
@@ -548,7 +557,7 @@ const changePassword = async (req, res) => {
 module.exports = {
   getUser,
   createUser,
-  verifyUserToken,
+  // verifyUserToken,
   userLogin,
   createPassword,
   loginPage,

@@ -33,7 +33,7 @@ const upload = multer({ storage: storage }).single("cv");
 const handleFileUpload = (req, res, next) => {
   upload(req, res, function (err) {
     if (err instanceof multer.MulterError) {
-      return res.sendError({ message: "File upload error" }, 400);
+      return res.sendError({ message: "File upload error. Please upload the file in PDF format only" }, 400);
     } else if (err) {
       return res.sendError({ message: "Internal server error" }, 500);
     }
