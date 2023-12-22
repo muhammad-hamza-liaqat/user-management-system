@@ -3,9 +3,10 @@ const ActivityLog = require("../Models/activityModel")
 
 const logUserActivity = async (req, res, next) => {
   try {
+    console.log(req.path);
     let logData = {};
 
-    if (req.path === "api/user/create-user" && req.method === "POST") {
+    if (req.path === "/create-user" && req.method === "POST") {
       // For user creation
       const { firstName, lastName, email } = req.body;
       const userName = `${firstName} ${lastName}`;
@@ -17,7 +18,7 @@ const logUserActivity = async (req, res, next) => {
       };
       console.log("log recorded for :8080/api/user/create-user");
 
-    } else if (req.path === "api/user/login-user" && req.method === "POST") {
+    } else if (req.path === "/login-user" && req.method === "POST") {
       const { email } = req.body;
       // Fetch user details from the database based on the provided email
       const user = await User.findOne({ where: { email } });
@@ -34,7 +35,7 @@ const logUserActivity = async (req, res, next) => {
       } else {
         console.log(`User with email ${email} not found`);
       }
-    } else if (req.path === "api/user/forgot-password" && req.method === "PATCH") {
+    } else if (req.path === "/forgot-password" && req.method === "PATCH") {
       // For forget password
       const { email } = req.body;
       const user = await User.findOne({ where: { email } });
@@ -52,7 +53,7 @@ const logUserActivity = async (req, res, next) => {
         console.log(`User with email ${email} not found`);
       }
     } else if (
-      req.path.startsWith("api/user/set-password/") &&
+      req.path.startsWith("/set-password/") &&
       req.method === "PATCH"
     ) {
       // For set password
@@ -63,14 +64,14 @@ const logUserActivity = async (req, res, next) => {
       };
       console.log("log recorded for :8080/api/user/set-password");
     } else if (
-      req.path.startsWith("api/user/create-password") &&
+      req.path.startsWith("/change-password") &&
       req.method === "POST"
     ) {
       // For set password
-      const { token } = req.params;
+      const { email } = req.body;
       logData = {
         action: "create-password",
-        details: `Password changed completed with token ${token}`,
+        details: `Password changed completed with token ${email}`,
       };
       console.log("log recorded for :8080/api/user/set-password");
     } else {
