@@ -507,16 +507,19 @@ const changePassword = async (req, res) => {
       if (newPassword !== confirmPassword) {
         return res.sendError({ message: "Password does not matching." }, 400);
       }
+      if (!checkPassword) {
+        return res.sendError({message: "possword does not matches"},400)
+      }
       const hashedPassword = await bcrypt.hash(newPassword, 10);
       // Update the user's password
       await userModel.update(
         { password: hashedPassword },
         { where: { email: user.email } }
       );
-      // Send a success response
+
       return res.sendSuccess(
         { message: "password changed successfully!" },
-        400
+        200
       );
     } else {
       return res.sendError({ message: "Invalid email or password" }, 400);

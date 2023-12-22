@@ -4,7 +4,8 @@ const ActivityLog = require("../Models/activityModel")
 const logUserActivity = async (req, res, next) => {
   try {
     let logData = {};
-    if (req.path === "/create-user" && req.method === "POST") {
+
+    if (req.path === "api/user/create-user" && req.method === "POST") {
       // For user creation
       const { firstName, lastName, email } = req.body;
       const userName = `${firstName} ${lastName}`;
@@ -14,9 +15,9 @@ const logUserActivity = async (req, res, next) => {
         userEmail: email,
         details: `New user ${userName} (${email}) has been created`,
       };
-      console.log("User Creation log action detected");
-    } else if (req.path === "/login-user" && req.method === "POST") {
-      // For user login
+      console.log("log recorded for :8080/api/user/create-user");
+
+    } else if (req.path === "api/user/login-user" && req.method === "POST") {
       const { email } = req.body;
       // Fetch user details from the database based on the provided email
       const user = await User.findOne({ where: { email } });
@@ -29,11 +30,11 @@ const logUserActivity = async (req, res, next) => {
           userEmail: email,
           details: `User "${email}" jsut logged in`,
         };
-        console.log("User Login log action detected");
+        console.log("log recorded for :8080/api/user/login-user");
       } else {
         console.log(`User with email ${email} not found`);
       }
-    } else if (req.path === "/forgot-password" && req.method === "POST") {
+    } else if (req.path === "api/user/forgot-password" && req.method === "POST") {
       // For forget password
       const { email } = req.body;
       const user = await User.findOne({ where: { email } });
@@ -46,12 +47,12 @@ const logUserActivity = async (req, res, next) => {
           userEmail: email,
           details: `Password reset request initiated for email ${email}`,
         };
-        console.log("Forget Password log action detected");
+        console.log("log recorded for :8080/api/user/forgot-password");
       } else {
         console.log(`User with email ${email} not found`);
       }
     } else if (
-      req.path.startsWith("/set-password/") &&
+      req.path.startsWith("api/user/set-password/") &&
       req.method === "PATCH"
     ) {
       // For set password
@@ -60,18 +61,18 @@ const logUserActivity = async (req, res, next) => {
         action: "Set Password",
         details: `Password reset completed with token ${token}`,
       };
-      console.log("Set Password log action detected");
+      console.log("log recorded for :8080/api/user/set-password");
     } else if (
-      req.path.startsWith("/create-password") &&
+      req.path.startsWith("api/user/create-password") &&
       req.method === "PATCH"
     ) {
       // For set password
       const { token } = req.params;
       logData = {
-        action: "Set Password",
-        details: `Password reset completed with token ${token}`,
+        action: "create-password",
+        details: `Password changed completed with token ${token}`,
       };
-      console.log("Set Password log action detected");
+      console.log("log recorded for :8080/api/user/set-password");
     } else {
       // If the route doesn't match any specific path or method, proceed to next middleware
       return next();
@@ -79,7 +80,7 @@ const logUserActivity = async (req, res, next) => {
     res.on("finish", async () => {
       try {
         logData.statusCode = res.statusCode;
-        if (res.statusCode >= 400 && res.statusCode <= 499) {
+        if (res.statusCode >= 500 && res.statusCode <= 499) {
           logData.action = "Client Error";
           logData.details = `Client error encountered: ${res.statusMessage}`;
         } else if (res.statusCode >= 500 && res.statusCode <= 599) {
@@ -87,7 +88,7 @@ const logUserActivity = async (req, res, next) => {
           logData.details = `Server error encountered: ${res.statusMessage}`;
         }
         await ActivityLog.create(logData);
-        console.log("User activity logged successfully:"); // Check the logged createdLog object
+        console.log("user-activity-logged");
       } catch (error) {
         console.error("Error creating log:", error);
       }
