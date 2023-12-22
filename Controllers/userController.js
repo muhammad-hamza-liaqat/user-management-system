@@ -12,6 +12,7 @@ const { where } = require("sequelize");
 const apiResponse = require("../Middleware/responseFormat");
 const jwt = require("jsonwebtoken");
 const { Op } = require("sequelize");
+// const jwt = require("jsonwebtoken");
 
 const getUser = async (req, res) => {
   res.sendSuccess(200, "hello from add-user controller");
@@ -494,8 +495,11 @@ const findAllUsers = async (req, res) => {
 
 const changePassword = async (req, res) => {
   try {
-    const { email, oldPassword, newPassword, confirmPassword } = req.body;
-    // Verify the token against the stored tokens in the database
+    const token = req.headers.authorization.split(" ")[1];
+    const decode = jwt.verify(token, process.env.Secret_KEY);
+    const email = decode.email;
+
+    const { oldPassword, newPassword, confirmPassword } = req.body;
     if (email) {
       const user = await userModel.findOne({
         where: {
@@ -503,22 +507,33 @@ const changePassword = async (req, res) => {
         },
       });
       // comparing the old password and decrypt with compare hash
-      const checkPassword = await bcrypt.compare(oldPassword, user.password);
+      const compareOldPassword = await bcrypt.compare(
+        oldPassword,
+        user.password
+      );
+      if (!compareOldPassword) {
+        return res.sendError(
+          {
+            message:
+              "old password does not matches with the entered old password",
+          },
+          400
+        );
+      }
+
       if (newPassword !== confirmPassword) {
         return res.sendError({ message: "Password does not matching." }, 400);
       }
-      if (!checkPassword) {
-        return res.sendError({message: "possword does not matches"},400)
+      if (newPassword == confirmPassword) {
+        const hashedPassword = await bcrypt.hash(newPassword, 15);
+        // Update the user's password
+        await userModel.update(
+          { password: hashedPassword },
+          { where: { email: user.email } }
+        );
       }
-      const hashedPassword = await bcrypt.hash(newPassword, 10);
-      // Update the user's password
-      await userModel.update(
-        { password: hashedPassword },
-        { where: { email: user.email } }
-      );
-
       return res.sendSuccess(
-        { message: "password changed successfully!" },
+        { message: "password changed successfully! login with new password now" },
         200
       );
     } else {
@@ -544,5 +559,5 @@ module.exports = {
   setPassword,
   adminLogin,
   findAllUsers,
-  changePassword
+  changePassword,
 };

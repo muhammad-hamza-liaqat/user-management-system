@@ -1,5 +1,5 @@
 const User = require("../Models/userModel");
-const ActivityLog = require("../Models/activityModel")
+const ActivityLog = require("../Models/activityModel");
 
 const logUserActivity = async (req, res, next) => {
   try {
@@ -17,7 +17,6 @@ const logUserActivity = async (req, res, next) => {
         details: `New user ${userName} (${email}) has been created`,
       };
       console.log("log recorded for :8080/api/user/create-user");
-
     } else if (req.path === "/login-user" && req.method === "POST") {
       const { email } = req.body;
       // Fetch user details from the database based on the provided email
