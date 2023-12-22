@@ -492,6 +492,41 @@ const findAllUsers = async (req, res) => {
   }
 };
 
+const changePassword = async (req, res) => {
+  try {
+    const { email, oldPassword, newPassword, confirmPassword } = req.body;
+    // Verify the token against the stored tokens in the database
+    if (email) {
+      const user = await userModel.findOne({
+        where: {
+          email: email,
+        },
+      });
+      // comparing the old password and decrypt with compare hash
+      const checkPassword = await bcrypt.compare(oldPassword, user.password);
+      if (newPassword !== confirmPassword) {
+        return res.sendError({ message: "Password does not matching." }, 400);
+      }
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      // Update the user's password
+      await userModel.update(
+        { password: hashedPassword },
+        { where: { email: user.email } }
+      );
+      // Send a success response
+      return res.sendSuccess(
+        { message: "password changed successfully!" },
+        400
+      );
+    } else {
+      return res.sendError({ message: "Invalid email or password" }, 400);
+    }
+  } catch (error) {
+    console.error("error=>", err);
+    return res.sendError({ message: "Interval Server Error" }, 500);
+  }
+};
+
 module.exports = {
   getUser,
   createUser,
@@ -506,4 +541,5 @@ module.exports = {
   setPassword,
   adminLogin,
   findAllUsers,
+  changePassword
 };

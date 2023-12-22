@@ -1,5 +1,5 @@
 const express = require("express");
-const { getUser, createUser, verifyUserToken, userLogin, createPassword, loginPage, createPasswordPage, forgotPasswordPage, forgotPassword, setPasswordPage, setPassword, adminLogin, findAllUsers } = require("../Controllers/userController");
+const { getUser, createUser, verifyUserToken, userLogin, createPassword, loginPage, createPasswordPage, forgotPasswordPage, forgotPassword, setPasswordPage, setPassword, adminLogin, findAllUsers, changePassword } = require("../Controllers/userController");
 const isthisUser = require("../Middleware/isUserAuth");
 const isthisAdmin = require("../Middleware/isAdminAuth");
 const { checkJWT, adminCheckJWT }  = require("../Middleware/adminAuthJWT")
@@ -17,6 +17,7 @@ userRoutes.route("/forgot-password").get(forgotPasswordPage).post(logUserActivit
 userRoutes.route("/set-password/:email/:newToken").get(setPasswordPage).patch(logUserActivity,setPassword);
 // userRoutes.route("/login-admin").post(isthisAdmin,adminLogin); 
 userRoutes.route("/get-users").get(checkJWT,findAllUsers); // user jwt check
+userRoutes.route("/change-password").post(checkJWT,changePassword);
 
 
 module.exports = userRoutes;
