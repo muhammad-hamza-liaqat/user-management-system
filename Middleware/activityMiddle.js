@@ -34,7 +34,7 @@ const logUserActivity = async (req, res, next) => {
       } else {
         console.log(`User with email ${email} not found`);
       }
-    } else if (req.path === "api/user/forgot-password" && req.method === "POST") {
+    } else if (req.path === "api/user/forgot-password" && req.method === "PATCH") {
       // For forget password
       const { email } = req.body;
       const user = await User.findOne({ where: { email } });
@@ -64,7 +64,7 @@ const logUserActivity = async (req, res, next) => {
       console.log("log recorded for :8080/api/user/set-password");
     } else if (
       req.path.startsWith("api/user/create-password") &&
-      req.method === "PATCH"
+      req.method === "POST"
     ) {
       // For set password
       const { token } = req.params;
