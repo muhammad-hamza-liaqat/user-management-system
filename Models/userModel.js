@@ -23,7 +23,9 @@ const userModel = sequelize.define(
         },
         validationForFirstName: function (value) {
           if (/[{};"'~!@#$%^&*()_+=123456789/*\-+]/.test(value)) {
-            throw new Error("special characters or numeric values are not allowed-firstName");
+            throw new Error(
+              "special characters or numeric values are not allowed-firstName"
+            );
           }
         },
       },
@@ -41,7 +43,9 @@ const userModel = sequelize.define(
         },
         validationForFirstName: function (value) {
           if (/[{};"'~!@#$%^&*()_+=123456789/*\-+]/.test(value)) {
-            throw new Error("special characters or numeric values are not allowed-lastName");
+            throw new Error(
+              "special characters or numeric values are not allowed-lastName"
+            );
           }
         },
       },
@@ -49,7 +53,7 @@ const userModel = sequelize.define(
     email: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true, 
+      unique: true,
       validate: {
         notNull: {
           msg: "Email is required.",
@@ -102,6 +106,11 @@ const userModel = sequelize.define(
       type: DataTypes.BOOLEAN,
       allowNull: true,
       defaultValue: false,
+    },
+    createdAccount: {
+      type: DataTypes.TIME,
+      allowNull: true,
+      defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
     },
   },
   {

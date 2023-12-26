@@ -14,6 +14,7 @@ const {
   adminLogin,
   findAllUsers,
   changePassword,
+  resetRememberToken
 } = require("../Controllers/userController");
 const isthisUser = require("../Middleware/isUserAuth");
 const isthisAdmin = require("../Middleware/isAdminAuth");
@@ -50,4 +51,6 @@ userRoutes
   .post(checkJWT, logUserActivity, changePassword);
 // userRoutes.route("/verify/:email/:rememberToken").get(verifyUserToken);
 // userRoutes.route("/login-admin").post(isthisAdmin,adminLogin);
+
+userRoutes.route("/reset-token").patch(resetRememberToken)
 module.exports = userRoutes;

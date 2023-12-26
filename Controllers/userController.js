@@ -15,7 +15,7 @@ const { Op } = require("sequelize");
 // const jwt = require("jsonwebtoken");
 
 const getUser = async (req, res) => {
-  res.sendSuccess(200, "hello from add-user controller");
+  res.sendSuccess({ message: "Hello from create-user controller" }, 200);
 };
 
 const createUser = async (req, res) => {
@@ -37,6 +37,7 @@ const createUser = async (req, res) => {
         rememberToken: rememberTokenForUser.token,
         isAdmin: false,
         isVerified: false,
+        createdAccount: new Date(),
       },
       {
         fields: [
@@ -46,9 +47,12 @@ const createUser = async (req, res) => {
           "rememberToken",
           "isAdmin",
           "isVerified",
+          // "createdAccount"
         ],
       }
     );
+    // console.log(newUser)
+    // console.log("createdAccount", newUser.createdAccount)
 
     // const verificationLink = `http://localhost:8080/#/UserDashboard/ConfirmPass/${email}`;
     const verificationLink = `http://localhost:8080/api/user/create-password/${email}/${rememberTokenForUser.token}`;
@@ -102,19 +106,15 @@ const createUser = async (req, res) => {
 
 // validator function to validate the token timestamp
 
-const isValidToken = (token) => {
-  if (!token || !token.createdAt) {
+const isValidToken = (token, updatedAt) => {
+  if (!token || !updatedAt) {
     return false;
   }
 
-  // Assuming token.createdAt is a Date object
-  const tokenCreationTime = token.createdAt.toLocaleTimeString();
-
-  // Set the expiry duration to 30 minutes in milliseconds
+  const tokenUpdateTime = new Date(updatedAt).getTime();
   const expiryDuration = 30 * 60 * 1000; // 30 minutes in milliseconds
 
-  // Check if the current time is within the expiry duration
-  return Date.now() - tokenCreationTime <= expiryDuration;
+  return Date.now() - tokenUpdateTime <= expiryDuration;
 };
 
 const createPasswordPage = (req, res) => {
@@ -158,7 +158,7 @@ const createPasswordPage = (req, res) => {
 // };
 
 const loginPage = (req, res) => {
-  res.end("loginPage");
+  res.sendSuccess({ message: "hello fron user-login controller" }, 200);
 };
 
 const userLogin = async (req, res) => {
@@ -239,18 +239,21 @@ const createPassword = async (req, res) => {
     const user = await userModel.findOne({
       where: { email: email, rememberToken: token },
     });
-    console.log(user.createdAt);
+    // console.log(user.updatedAt);
+    console.log("User:", user);
+    console.log("User updated At:", user.updatedAt);
+    console.log("Current Time:", new Date());
+    console.log("Token is Valid:", isValidToken(token, user.updatedAt));
 
     if (!user) {
       console.log("this user does not exist in the records");
       return res.sendError({ message: "user not found!" }, 400);
     }
-    if (user.rememberToken !== token) {
-      return res.sendError({ message: "token is invalid" });
+
+    if (!isValidToken(token, user.updatedAt)) {
+      return res.sendError({ message: "Token is invalid or expired" }, 400);
     }
-    // if (!isValidToken(user.rememberToken)){
-    //   return res.sendError({message: "token expired"},401)
-    // }
+    
     if (!password) {
       return res.sendError({ message: "password is missing" }, 400);
     }
@@ -259,6 +262,12 @@ const createPassword = async (req, res) => {
     }
     if (password !== confirmPassword) {
       return res.sendError({ message: "password does not match" }, 400);
+    }
+    if (password.includes(" ")) {
+      return res.sendError(
+        { message: "Password can not contains spaces" },
+        400
+      );
     }
 
     if (password == confirmPassword) {
@@ -276,7 +285,8 @@ const createPassword = async (req, res) => {
       return res.sendSuccess({ message: "Password set and account Verified" });
     }
   } catch (error) {
-    console.log(error);
+    console.log("error=>", error);
+
     return res.sendError(
       {
         message: "Something went Wrong! Internal Server Error- createPassword",
@@ -356,7 +366,7 @@ const setPassword = async (req, res) => {
   const { password } = req.body;
   const email = req.params.email;
   const token = req.params.newToken;
-  console.log(email)
+  console.log(email);
   try {
     const user = await userModel.findOne({
       // attributes: ["rememberToken"],
@@ -554,6 +564,68 @@ const changePassword = async (req, res) => {
   }
 };
 
+const resetRememberToken = async (req, res) => {
+  // res.end("hello from rememberToken Controller")
+  let newRememberToken;
+  const { email } = req.body;
+  try {
+    const user = await userModel.findOne({
+      where: {
+        email,
+      },
+    });
+    console.log("rememberTokenUser", user);
+    if (!user) {
+      return res.sendError({ message: "Invalid Email. user not found" }, 404);
+    }
+    if (user.isVerified == true) {
+      return res.sendError(
+        { message: "already created the password! account verified" },
+        400
+      );
+    }
+    if (user) {
+      const newRememberToken = uuidv4();
+      await user.update({ rememberToken: newRememberToken });
+      console.log(newRememberToken);
+
+      const verificationLink = `http://localhost:8080/api/user/create-password/${email}/${user.rememberToken}`;
+      const htmlContent = `<html>
+        <head>
+          <title>Email Verification</title>
+        </head>
+        <body style="font-family: Arial, sans-serif;">
+    
+          <div style="background-color: #f2f2f2; padding: 20px; border-radius: 10px;">
+            <h2 style="color: #333;">Email Verification</h2>
+            <p>Please click the button below to verify your email address. Remember to verifiy within 30 minutes else generate a new token</p>
+            <a href=${verificationLink} target="_blank" style="text-decoration: none;">
+              <button style="background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+                Verify Email & create password
+              </button>
+            </>
+          </div>
+        </body>
+      </html>
+    `;
+
+      await emailQueue.add({
+        to: user.email,
+        subject: "Reset Verification Token",
+        text: "It looks like, you have initiated the request for the new RememberToken for verification.",
+        html: htmlContent,
+      });
+      res.sendSuccess(
+        { message: "email sent. check mail to verify your account!" },
+        201
+      );
+    }
+  } catch (error) {
+    console.log("error:", error);
+    return res.sendError({ message: "Internal Server Error" }, 500);
+  }
+};
+
 module.exports = {
   getUser,
   createUser,
@@ -569,4 +641,5 @@ module.exports = {
   adminLogin,
   findAllUsers,
   changePassword,
+  resetRememberToken,
 };
