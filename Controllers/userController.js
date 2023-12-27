@@ -81,6 +81,7 @@ const createUser = async (req, res) => {
       text: "So delighted that you have sign-up to our website. Please cooperate with us for the sign in process",
       html: htmlContent,
     });
+    console.log("user Created Successfully!", newUser);
     return res.sendSuccess({
       message: "user created successfully!",
       statusCode: 201,
@@ -89,7 +90,6 @@ const createUser = async (req, res) => {
       isVerified: newUser.isVerified,
       isAdmin: newUser.isAdmin,
     });
-    console.log("user Created Successfully!", newUser);
   } catch (error) {
     if (error.name === "SequelizeValidationError") {
       const validationErrors = error.errors.map((err) => ({
@@ -253,7 +253,7 @@ const createPassword = async (req, res) => {
     if (!isValidToken(token, user.updatedAt)) {
       return res.sendError({ message: "Token is invalid or expired" }, 400);
     }
-    
+
     if (!password) {
       return res.sendError({ message: "password is missing" }, 400);
     }
@@ -311,7 +311,10 @@ const forgotPassword = async (req, res) => {
       return res.sendError({ message: "user not found!" }, 400);
     }
     if (!user.isVerified == true) {
-      return res.sendError({ message: "Account Not Verified" }, 403);
+      return res.sendError(
+        { message: "Account Not Verified. verify account first!" },
+        403
+      );
     }
 
     if (user.password === null || user.password == "") {
@@ -384,6 +387,12 @@ const setPassword = async (req, res) => {
 
     if (user.rememberToken === undefined || user.rememberToken !== token) {
       return res.sendError({ message: "Invalid token" }, 400);
+    }
+    if (password.includes(" ")) {
+      return res.sendError(
+        { message: "Password can not contains spaces" },
+        400
+      );
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -534,6 +543,12 @@ const changePassword = async (req, res) => {
             message:
               "old password does not matches with the entered old password",
           },
+          400
+        );
+      }
+      if (password.includes(" ")) {
+        return res.sendError(
+          { message: "Password can not contains spaces" },
           400
         );
       }
