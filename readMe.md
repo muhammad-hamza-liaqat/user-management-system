@@ -17,14 +17,23 @@ projectFinal
 13- jsonwebtoken => for authentication and authorization
 14- winston =. logging the logs
 
-http://192.168.11.179:8080/user/verify-user
-http://192.168.11.179:8080/user/login-user
+http://192.168.11.179:8080/api/user/login-user
 http://192.168.11.179:8080/user/create-user
-http://192.168.11.179:8080/job/apply-job
-http://192.168.11.178:8080/user/admin-login
+http://192.168.11.179:8080/api/user/create-password
+http://192.168.11.179:8080/api/user/get-users
+http://192.168.11.179:8080/api/user/reset-token
+http://192.168.11.179:8080/api/user/change-user
+http://192.168.11.179:8080/api/user/forgot-password
+http://192.168.11.179:8080/api/user/set-user
+http://192.168.11.179:8080/api/user/get-users
 
-http://192.168.11.178:8080/user/verify/:email/:rememberToken
 http://192.168.11.179:8080/api/job/apply-job
+http://192.168.11.179:8080/api/job/get-applications
+http://192.168.11.179:8080/api/job/cv/reject/:id
+http://192.168.11.179:8080/api/job/cv/accept/:id
+
+
+http://192.168.11.179:8080/api/log/activity-logs
 
 ![Alt text](chatMessage.png)
 ![Alt text](postMan.png)
