@@ -54,8 +54,10 @@ const createUser = async (req, res) => {
     // console.log(newUser)
     // console.log("createdAccount", newUser.createdAccount)
 
+// http://localhost:8081/ResetPassword
+
     // const verificationLink = `http://localhost:8080/#/UserDashboard/ConfirmPass/${email}`;
-    const verificationLink = `http://localhost:8080/api/user/create-password/${email}/${rememberTokenForUser.token}`;
+    const verificationLink = `http://localhost:8081/ResetPassword/${email}/${rememberTokenForUser.token}`;
     const htmlContent = `<html>
       <head>
         <title>Email Verification</title>
@@ -233,7 +235,7 @@ const createPassword = async (req, res) => {
     if (!email) {
       return res.sendError({ message: "email required" }, 400);
     }
-    if (!token) {
+    if (!req.params.token) {
       return res.sendError({ message: "token not attached" }, 400);
     }
     const user = await userModel.findOne({
@@ -247,7 +249,7 @@ const createPassword = async (req, res) => {
 
     if (!user) {
       console.log("this user does not exist in the records");
-      return res.sendError({ message: "user not found!" }, 400);
+      return res.sendError({ message: "Invalid Token" }, 400);
     }
 
     if (!isValidToken(token, user.updatedAt)) {
@@ -310,12 +312,6 @@ const forgotPassword = async (req, res) => {
     if (!user) {
       return res.sendError({ message: "user not found!" }, 400);
     }
-    if (!user.isVerified == true) {
-      return res.sendError(
-        { message: "Account Not Verified. verify account first!" },
-        403
-      );
-    }
 
     if (user.password === null || user.password == "") {
       return res.sendError(
@@ -326,6 +322,7 @@ const forgotPassword = async (req, res) => {
         400
       );
     }
+
     const newToken = uuidv4();
     await user.update({ password: null, rememberToken: newToken });
     console.log("Mail sent to your email address. follow the instructions");
@@ -387,6 +384,15 @@ const setPassword = async (req, res) => {
 
     if (user.rememberToken === undefined || user.rememberToken !== token) {
       return res.sendError({ message: "Invalid token" }, 400);
+    }
+    if (!isValidToken(token, user.updatedAt)) {
+      return res.sendError({ message: "Token is invalid or expired" }, 400);
+    }
+    if (!user.isVerified == true) {
+      return res.sendError(
+        { message: "Account Not Verified. verify account first!" },
+        403
+      );
     }
     if (password.includes(" ")) {
       return res.sendError(

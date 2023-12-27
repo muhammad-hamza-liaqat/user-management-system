@@ -6,7 +6,7 @@ const logUserActivity = async (req, res, next) => {
   try {
     console.log(req.path);
     let logData = {};
-
+// create user
     if (req.path === "/create-user" && req.method === "POST") {
       // For user creation
       const { firstName, lastName, email } = req.body;
@@ -18,6 +18,7 @@ const logUserActivity = async (req, res, next) => {
         details: `New user ${userName} (${email}) has been created`,
       };
       console.log("log recorded for :8080/api/user/create-user");
+// login
     } else if (req.path === "/login-user" && req.method === "POST") {
       const { email } = req.body;
       // Fetch user details from the database based on the provided email
@@ -35,6 +36,7 @@ const logUserActivity = async (req, res, next) => {
       } else {
         console.log(`User with email ${email} not found`);
       }
+// forgot password
     } else if (req.path === "/forgot-password" && req.method === "PATCH") {
       // For forget password
       const { email } = req.body;
@@ -52,6 +54,7 @@ const logUserActivity = async (req, res, next) => {
       } else {
         console.log(`User with email ${email} not found`);
       }
+// set-password
     } else if (req.path.startsWith("/set-password/") && req.method === "PATCH") {
       // For set password
       const { newToken } = req.params;
@@ -67,6 +70,7 @@ const logUserActivity = async (req, res, next) => {
         };
         console.log("log recorded for :8080/api/user/set-password");
       }
+// change-password
     } else if (req.path.startsWith("/change-password") && req.method === "POST") {
       // For change password
       const token = req.headers.authorization.split(' ')[1];
@@ -84,8 +88,28 @@ const logUserActivity = async (req, res, next) => {
         };
         console.log("log recorded for :8080/api/user/change-password");
       }
-    } else {
-      // If the route doesn't match any specific path or method, proceed to next middleware
+    }
+    // reset-token 
+    else if (req.path === "/reset-token" && req.method === "PATCH"){
+      // const token = req.headers.authorization.split(' ')[1];
+      // const decode = jwt.verify(token, process.env.Secret_KEY);
+      // const email= decode.email;
+      const email = req.body.email
+      const user = await User.findOne({ where: { email: email } });
+      if (user) {
+        const { firstName, lastName } = user;
+        const userName = `${firstName} ${lastName}`;
+        logData = {
+          action: "reset-token",
+          username: userName,
+          email: email,
+          details: `reset-token completed against email ${email}`,
+        };
+        console.log("log recorded for :8080/api/user/reset-token");
+      }
+
+    }
+     else {
       return next();
     }
 

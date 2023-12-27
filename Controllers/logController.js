@@ -1,5 +1,6 @@
 const logModel = require("../Models/logModel");
 const apiResponse = require("../Middleware/responseFormat");
+const activityModel = require("../Models/activityModel")
 
 // const getLogs = async (req, res) => {
 //   try {
@@ -54,15 +55,16 @@ const getLogs = async (req, res) => {
         "level",
         // "host",
         // "connection",
-        // "statusCode",
+        "statusCode",
         "userAgent",
         // "accept",
-        // "userName",
+        "userName",
         // "createdAt",
+        "message",
       ],
       
       where: {
-        level: "post",
+        level: ["post", "patch"],
       },
       limit: pageSize,
       offset: offset,
@@ -96,5 +98,52 @@ const getLogs = async (req, res) => {
   }
 };
 
+const getLog = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = parseInt(req.query.pageSize) || 10;
 
-module.exports = getLogs;
+    const offset = (page - 1) * pageSize;
+    const { count, rows: activities } = await activityModel.findAndCountAll({
+      attributes: [
+        "action",
+        "username",
+        "details",
+      ],
+      
+      // where: {
+      //   level: ["post", "patch"],
+      // },
+      limit: pageSize,
+      offset: offset,
+    });
+
+    // Calculate total number of pages
+    const totalPages = Math.ceil(count / pageSize);
+
+    // pagination logic and format
+    const pagination = {
+      totalRecords: count,
+      currentPage: page,
+      pageSize: pageSize,
+      totalPages: totalPages,
+      previousPage: page > 1 ? page - 1 : null,
+      nextPage: page < totalPages ? page + 1 : null,
+    };
+
+    // Include page and pageSize in the response object
+    const response = {
+      records: activities,
+      pagination: pagination,
+      currentPage: page,
+      pageSize: pageSize,
+    };
+
+    res.sendSuccess({ message: "Logs fetched successfully!", response }, 200);
+  } catch (error) {
+    console.error("Error:", error);
+    res.sendError({ message: "Internal Server Error" }, 500);
+  }
+};
+
+module.exports = {getLogs, getLog};

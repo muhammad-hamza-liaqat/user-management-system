@@ -1,6 +1,6 @@
 const apiResponseMiddleware = (req, res, next) => {
     const successResponse = (data, statusCode = 200) => ({
-      success: true,
+      status: "success",
       message: 'Request processed successfully',
       data: {
         message: data.message || null,

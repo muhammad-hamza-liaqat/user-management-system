@@ -166,6 +166,7 @@ const findAllApplications = async (req, res) => {
 
     // Specify the attributes you want to retrieve
     const attributesToRetrieve = [
+      "applicantId",
       "userName",
       "email",
       "cnic",

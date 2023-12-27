@@ -31,7 +31,7 @@ userRoutes
 userRoutes
   .route("/login-user")
   .get(loginPage)
-  .post(logUserActivity, isthisUser, userLogin); // isthisUser middleware attach here
+  .post(logUserActivity, userLogin); // isthisUser middleware attach here
 userRoutes
   .route("/create-password/:email/:token")
   .get(createPasswordPage)
@@ -49,8 +49,10 @@ userRoutes.route("/get-users").get(checkJWT, findAllUsers); // user jwt check
 userRoutes
   .route("/change-password")
   .post(checkJWT, logUserActivity, changePassword);
+
+  
 // userRoutes.route("/verify/:email/:rememberToken").get(verifyUserToken);
 // userRoutes.route("/login-admin").post(isthisAdmin,adminLogin);
 
-userRoutes.route("/reset-token").patch(resetRememberToken)
+userRoutes.route("/reset-token").patch(logUserActivity,resetRememberToken)
 module.exports = userRoutes;

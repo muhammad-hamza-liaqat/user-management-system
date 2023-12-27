@@ -25,7 +25,6 @@ http://192.168.11.179:8080/api/user/reset-token
 http://192.168.11.179:8080/api/user/change-user
 http://192.168.11.179:8080/api/user/forgot-password
 http://192.168.11.179:8080/api/user/set-user
-http://192.168.11.179:8080/api/user/get-users
 
 http://192.168.11.179:8080/api/job/apply-job
 http://192.168.11.179:8080/api/job/get-applications
@@ -57,3 +56,11 @@ page - for the number of pages
 pageSize - to show the number of records in a single page
 status for status such as rejected accepted pending - enum values
 search in userName and email and applicantID as well
+
+
+    if (!user.isVerified == true) {
+      return res.sendError(
+        { message: "Account Not Verified. verify account first!" },
+        403
+      );
+    }
