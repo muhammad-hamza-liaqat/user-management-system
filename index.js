@@ -99,6 +99,7 @@ app.use(function (req, res, next) {
 app.set("view engine", "ejs");
 app.set("views", "./Views");
 
+// Socket code
 io.on("connection", (socket) => {
   console.log("A user connected");
   socket.emit("chat message", "Hello, how may i help you?")
